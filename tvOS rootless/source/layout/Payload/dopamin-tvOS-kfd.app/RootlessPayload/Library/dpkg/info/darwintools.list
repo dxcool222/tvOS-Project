@@ -1,0 +1,9 @@
+/.
+/etc
+/var/jb/etc/resolv.conf
+/usr
+/var/jb/usr/bin
+/var/jb/usr/bin/sw_vers
+/var/jb/usr/libexec
+/var/jb/usr/libexec/firmware
+/var/jb/usr/libexec/firmware-wrapper

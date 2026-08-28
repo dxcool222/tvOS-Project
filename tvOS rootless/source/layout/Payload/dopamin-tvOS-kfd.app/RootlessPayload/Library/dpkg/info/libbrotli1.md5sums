@@ -1,0 +1,5 @@
+03ba79ddd23616d56237e6cac646ff78  usr/lib/libbrotlidec.1.1.0.dylib
+8120364a76faa7a3bbfa108ca96fdaf6  usr/lib/libbrotlicommon.1.1.0.dylib
+5a16aa033478b5542a95c7c733ed0ac8  usr/lib/libbrotlienc.1.1.0.dylib
+941ee9cd1609382f946352712a319b4b  usr/share/doc/libbrotli1/LICENSE
+dcfcdc474ff516be909b42d3c3561904  usr/share/doc/libbrotli1/README.zst

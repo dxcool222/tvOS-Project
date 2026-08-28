@@ -1,0 +1,11 @@
+{
+  "description": "Stock tvOS 16.5 (20L563) dyld Mach-O used as R24 dyld-delivery input. Not redistributed.",
+  "expected_sha256": "96806a0e57eef714ec806063714101f09afbbdd968346d0d6ba8c4d635b11fdf",
+  "expected_uuid": "7C25AD4D-2C32-3AE3-A52C-0AF299CDDA68",
+  "expected_size_bytes": 846640,
+  "local_input_paths": [
+    "vendor/dyld/user/dyld_filesystem_20L563",
+    "vendor/dyld/user/dyld"
+  ],
+  "extraction_notes": "Extract from Apple tvOS 16.5 (20L563) IPSW: usr/lib/dyld or dyld_shared_cache slice. See scripts/extract_tvos_dyld.sh"
+}

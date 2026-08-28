@@ -1,0 +1,12 @@
+/.
+/usr
+/var/jb/usr/lib
+/var/jb/usr/lib/libintl.8.dylib
+/var/jb/usr/share
+/var/jb/usr/share/doc
+/var/jb/usr/share/doc/libintl8
+/var/jb/usr/share/doc/libintl8/AUTHORS
+/var/jb/usr/share/doc/libintl8/COPYING
+/var/jb/usr/share/doc/libintl8/NEWS.zst
+/var/jb/usr/share/doc/libintl8/README.zst
+/var/jb/usr/share/doc/libintl8/THANKS.zst

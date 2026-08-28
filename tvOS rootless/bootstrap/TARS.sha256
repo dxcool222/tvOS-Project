@@ -1,0 +1,5 @@
+# Procursus/palera1n tvOS bootstrap archives — FETCHED/PACKAGED DEPENDENCIES (not in Git by default).
+# Place files under bootstrap/tars/ or set DT_BOOTSTRAP_TARS_DIR.
+64b980e1794177fcfcbea232b54677e34f3d07c230c44a4473a0f7167a7c582f  bootstrap-appletvos-arm64.tar.zst
+0dbb22eb62d6ddbf258e45e485af4b8690f6e2a047baac674ea255dfe233c26a  bootstrap-ssh-appletvos-arm64-rootless.tar.zst
+54299aaf56176695b4fe6883f13bd67617d8c008e5bc5778591ec3940e5e7666  tvbootstrap-ssh-1900.tar.zst

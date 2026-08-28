@@ -1,0 +1,10 @@
+/.
+/usr
+/var/jb/usr/lib
+/var/jb/usr/lib/libzstd.1.5.5.dylib
+/var/jb/usr/share
+/var/jb/usr/share/doc
+/var/jb/usr/share/doc/libzstd1
+/var/jb/usr/share/doc/libzstd1/COPYING
+/var/jb/usr/share/doc/libzstd1/LICENSE
+/var/jb/usr/lib/libzstd.1.dylib -> libzstd.1.5.5.dylib

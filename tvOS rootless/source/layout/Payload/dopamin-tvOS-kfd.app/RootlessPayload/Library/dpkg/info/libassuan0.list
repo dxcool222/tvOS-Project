@@ -1,0 +1,13 @@
+/.
+/usr
+/var/jb/usr/lib
+/var/jb/usr/lib/libassuan.0.dylib
+/var/jb/usr/share
+/var/jb/usr/share/doc
+/var/jb/usr/share/doc/libassuan0
+/var/jb/usr/share/doc/libassuan0/AUTHORS
+/var/jb/usr/share/doc/libassuan0/COPYING
+/var/jb/usr/share/doc/libassuan0/NEWS.zst
+/var/jb/usr/share/doc/libassuan0/README.zst
+/var/jb/usr/share/doc/libassuan0/THANKS.zst
+/var/jb/usr/share/doc/libassuan0/TODO.zst

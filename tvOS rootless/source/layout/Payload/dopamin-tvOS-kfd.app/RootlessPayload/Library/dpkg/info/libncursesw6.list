@@ -1,0 +1,14 @@
+/.
+/usr
+/var/jb/usr/lib
+/var/jb/usr/lib/libformw.6.dylib
+/var/jb/usr/lib/libmenuw.6.dylib
+/var/jb/usr/lib/libncursesw.6.dylib
+/var/jb/usr/lib/libpanelw.6.dylib
+/var/jb/usr/share
+/var/jb/usr/share/doc
+/var/jb/usr/share/doc/libncursesw6
+/var/jb/usr/share/doc/libncursesw6/AUTHORS
+/var/jb/usr/share/doc/libncursesw6/COPYING
+/var/jb/usr/share/doc/libncursesw6/NEWS.zst
+/var/jb/usr/share/doc/libncursesw6/README.zst

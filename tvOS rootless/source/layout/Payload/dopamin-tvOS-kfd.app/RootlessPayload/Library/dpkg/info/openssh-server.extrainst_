@@ -1,0 +1,18 @@
+#!/var/jb/bin/sh
+
+set -e
+
+case "$1" in
+    (install)
+    /var/jb/bin/launchctl load -w /var/jb/Library/LaunchDaemons/com.openssh.sshd.plist
+    ;;
+	(upgrade)
+	/var/jb/bin/launchctl unload /var/jb/Library/LaunchDaemons/com.openssh.sshd.plist
+    /var/jb/bin/launchctl load /var/jb/Library/LaunchDaemons/com.openssh.sshd.plist
+	;;
+	(*)
+	exit 0
+	;;
+esac
+
+exit 0

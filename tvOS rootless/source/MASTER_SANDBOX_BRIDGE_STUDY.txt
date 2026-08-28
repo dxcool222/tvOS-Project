@@ -1,0 +1,397 @@
+================================================================================
+MASTER SANDBOX BRIDGE STUDY — tvrootshell vs Dopamine iOS
+================================================================================
+Date: 2026-06-19
+Status: STUDY ONLY — NO BUILDS until GAP_REGISTER.txt §6 gate (≥98%)
+Device: Apple TV 4K (j105a), tvOS 16.5 (20L563)
+Kernel IDB: kernelcache.j105a.20L563.macho @ IDA port 13337
+Userspace IDB: libsystem_sandbox.dylib + libsandbox.1.dylib @ IDA port 13338
+Dopamine ref: iOS/Dopamine_Rootful/
+Device log: untitled folder 2/run 1/poc.txt
+
+This file is the single entry point. All subsidiary studies are cited here.
+Nothing in §12 is guessed — every claim has a source file or IDA VA below.
+
+================================================================================
+§0 DOCUMENT INDEX
+================================================================================
+
+| File | Contents |
+|------|----------|
+| MASTER_SANDBOX_BRIDGE_STUDY.txt | THIS FILE — gap matrix + build gate pointer |
+| **GAP_REGISTER.txt** | **OPEN gaps O1–O10, IDA loads, 98% build gate** |
+| **TVOS_GAP_CLOSURE_O1_O3_O4.txt** | **O1/O3/O4 IDA closure + O10 source fix (tvOS only)** |
+| **ISSUE_CONSUME_DEFINITIVE_KNOW.txt** | **CLOSED device+IDA: issue OK, consume fail, 5FF124 bug** |
+| DOPAMINE_LAYERS_STUDY.txt | Dopamine Layers 1–6 source trace |
+| KERNEL_CACHE_MAC_LABEL_STUDY.txt | Slot 0 vs slot 1; consume prerequisites |
+| KERNEL_CACHE_IDA_DEEP_STUDY.txt | Deep kernel sandbox kext; op 16 deny |
+| LIBSYSTEM_SANDBOX_DYLIB_STUDY.txt | MIG 5 issue / MIG 6 consume userspace |
+| LIBSANDBOX_DYLIB_STUDY.txt | sandbox_apply; tvOS compile disabled |
+| BUILD102.4_DEVICE_FAILURE_IDA_TRACE.txt | build102.4 errno 45 closed root cause |
+
+Optional future IDA (NOT required for §12 plan):
+  - launchd binary (tvOS 16.5) — compare issuer sandbox profile vs container app
+  - xpcproxy — only if check-in path is pursued
+
+================================================================================
+§1 PROBLEM STATEMENT (ONE LINE)
+================================================================================
+
+tvrootshell can spawn uid=0 dt_helper and trustcache /var/jb binaries, but
+processes still hit Seatbelt op-16 (file-map-executable) deny on /var/jb dylibs
+because no sandbox **extension tokens** are attached to the slot-0 profile.
+
+Dopamine solves this with launchdhook issuing tokens + systemhook consuming them
+in every spawned process — tvrootshell has neither layer.
+
+================================================================================
+§2 BUILD HISTORY — WHAT EACH BUILD PROVED
+================================================================================
+
+| Build | What worked | What failed | Root cause (evidence) |
+|-------|-------------|-------------|------------------------|
+| build96–101 | app issue OK (flags=0) | consume handle=0 always | **5FF124 ucred-as-proc bug** (§47/§48) |
+| build102.3.3 | uid=0 helper, trustcache, dash spawns | dyld mmap deny libiosexec | op-16 deny, no ext on profile+8 |
+| build102.4 | helper ext code entered | issue_file flags=0x4 → errno 45 | kernel 550690 PREFIXMATCH+subtype0 |
+
+Timeline of failure depth:
+  96–101  → issue OK, consume handle=0 (dispatch bug — CLOSED)
+  102.3.3 → dash dyld (no ext attached)
+  102.4   → wrong issue flags (errno 45 — never reached consume)
+  Next    → fix **5FF124 consume dispatch**, not issue entitlement
+
+================================================================================
+§3 DOPAMINE iOS — COMPLETE ORDERED FLOW (SOURCE-CITED)
+================================================================================
+
+3.1 Jailbreak pipeline (DOJailbreaker.m)
+  gatherSystemInformation → doExploitation → buildPhysRWPrimitive
+  → cleanUpExploits → elevatePrivileges → prepareBootstrap → injectLaunchdHook
+  → applyProtection → createFakeLib → finalizeBootstrap → rebootUserspace
+
+3.2 Layer 1 — elevatePrivileges (DOJailbreaker.m)
+  - kwrite uid/gid 0 on proc + ucred
+  - mac_label_set(label, **1**, -1)          ← slot 1, NOT slot 0
+  - proc_csflags_set(CS_PLATFORM_BINARY)
+  - Verify /var listable
+
+3.3 Layer 2 — runUnsandboxed (DOEnvironmentManager.m)
+  jbclient_root_set_mac_label(1, -1, &backup) around block; restore after.
+
+3.4 Layer 6 — injectLaunchdHook (DOJailbreaker.m)
+  - boomerang server in app
+  - jbctl stash port
+  - opainject launchdhook.dylib into **PID 1**
+  - rebootUserspace (userspace reboot)
+
+3.5 launchdhook jbserver (launchd process)
+  Domains: root, platform, systemwide, watchdog, boomerang
+  IPC: Mach msg 206 + XPC from clients
+
+3.6 Layer 3 — systemwide_process_checkin (jbdomain_systemwide.c:269)
+  **ISSUER = launchd (PID 1), NOT the client app.**
+
+  JBROOT extensions (lines 307-309):
+    sandbox_extension_issue_file_to_process(
+        "com.apple.app-sandbox.read",     JBROOT_PATH(""), **0**, *processToken)
+    sandbox_extension_issue_file_to_process(
+        "com.apple.sandbox.executable",   JBROOT_PATH(""), **0**, *processToken)
+
+  Additional read-write tokens on /private/var/mobile, /Library, etc.
+  Returns pipe-separated token string in *sandboxExtensionsOut.
+
+  Also: cs_allow_invalid, optional CS_DEBUGGED, setuid fixup, Protobox syscall mask.
+
+3.7 Layer 3 — Client consume (systemhook/main.c)
+  Constructor:
+    jbclient_process_checkin() → receives JB_SandboxExtensions string
+    consume_tokenized_sandbox_extensions() — sandbox_extension_consume per token
+    Hook sandbox_apply → re-consume on profile apply
+
+3.8 Layer 4 — Child inheritance (systemhook/common.c)
+  posix_spawn_hook_shared:
+    - trust_binary(path) if needed
+    - DYLD_INSERT_LIBRARIES=/var/jb/basebin/systemhook.dylib
+    - Child constructor repeats check-in + consume
+
+3.9 Extension → kernel op mapping (IDA + Dopamine classes)
+  com.apple.app-sandbox.read       → op 20  file-read*
+  com.apple.app-sandbox.read-write   → op 28  file-write*
+  com.apple.sandbox.executable     → op 129 process-exec* AND op 16 file-map-executable
+
+  Tokens attach to profile+0x98 extension hash on **slot-0 profile object**.
+  Child inherits via 533304 → 532A80 (cred inherit at fork/spawn).
+
+3.10 Dopamine NEVER does this
+  ✗ sandbox_extension_issue_file (self-issue) from app or helper
+  ✗ PREFIXMATCH flags on JBROOT issue
+  ✗ Clearing slot 0 for unsandbox
+  ✗ Expecting slot-1=-1 to bypass op-16 on tvOS kernel
+
+================================================================================
+§4 tvrootshell — CURRENT ARCHITECTURE
+================================================================================
+
+4.1 Pipeline (dt_do_fun.m → DTKFDRunner.m → DTBootstrap.m G5)
+  KFD privesc → phys-rw handoff → cred smoke → root esc → trustcache
+  → build97 privesc preserve slot0 → (optional remount N/A on tvOS)
+  **NO extension issue/consume in app pipeline**
+
+4.2 Helper spawn (spawn_root.m + DTRootHelperClient.m)
+  App uses persona 99 + uid/gid 0:
+    posix_spawnattr_set_persona_np(&attr, 99, OVERRIDE)
+    posix_spawnattr_set_persona_uid_np(&attr, 0)
+    posix_spawnattr_set_persona_gid_np(&attr, 0)
+  Target: /var/jb/usr/bin/dt_helper
+
+4.3 Helper smoke (bootstraphelper.m smokeExec)
+  1. log_helper_creds (uid=0 confirmed on device)
+  2. dt_helper_issue_consume_jbroot_extensions()  ← build102.4
+  3. posix_spawn dash (plain, NO systemhook inject)
+
+4.4 Orphaned / unused code (exists on disk, NOT linked or NOT called)
+  | File | flags | API | In Makefile? | Called? |
+  |------|-------|-----|--------------|---------|
+  | dt_build97_sandbox_ext.m | 0 | issue_file | NO | NO (not in dt_do_fun) |
+  | dt_build98/99/100_sandbox_ext.m | 0 | issue_file + diag | NO | NO |
+  | dt_helper_sandbox_ext.m | **0x4** | issue_file | bootstraphelper only | YES (102.4) |
+
+4.5 Entitlements (signed into app + helper)
+  App (entitlements.plist):
+    com.apple.private.security.no-sandbox = true
+    com.apple.private.persona-mgmt = true
+    platform-application = true
+    kernelcache read paths
+
+  Helper (entitlements_helper.plist):
+    com.apple.private.security.no-sandbox = true
+    com.apple.private.security.container-manager = true
+    com.apple.security.exception.files.absolute-path.read-write = ["/"]
+    **NO persona-mgmt** (app does persona spawn)
+
+  CRITICAL DEVICE FACT: despite no-sandbox entitlement, build102.3.3 proves
+  Seatbelt IS active (op-16 deny). Entitlement does NOT remove slot-0 profile
+  for TrollStore sideloaded container app. Sandbox profile still enforced.
+
+4.6 What tvrootshell explicitly does NOT port (project constraints)
+  launchdhook / opainject into PID 1
+  userspace reboot / fakelib / dyld bind mounts
+  systemhook child injection (Layer 4)
+  Full jbserver / basebin
+
+================================================================================
+§5 GAP MATRIX — DOPAMINE vs tvrootshell
+================================================================================
+
+| Capability | Dopamine | tvrootshell | Blocker for dash/libiosexec |
+|------------|----------|-------------|------------------------------|
+| KFD kernel R/W | exploit-specific | KFD ✓ | — |
+| uid/gid 0 | elevatePrivileges | persona spawn ✓ | — |
+| CS_PLATFORM_BINARY | yes | build97 ✓ | — |
+| slot0 profile preserved | yes (never clear) | build97 ✓ | — |
+| slot1=-1 unsandbox | yes | not tried; **tvOS noop** | not op-16 path |
+| Trustcache /var/jb bins | basebin.tc | G5 upload ✓ | — |
+| **Extension ISSUER (launchd)** | **launchd PID 1** | **not required to mint** — app issues OK (B5) | Dopamine child distro only |
+| Issue API | issue_file_to_process, flags=0 | issue_file flags=**0x4** (102.4) | 102.4 wrong; flags=0 OK |
+| **Extension CONSUME** | systemhook | app+helper | **BLOCKED: 5FF124 dispatch bug** |
+| Child DYLD inject | systemhook.dylib | none | dash inherits parent profile only |
+| runUnsandboxed slot1 wrap | jbclient | none | minor for one-shot G5 |
+| Bootstrap at /var/jb | Procursus+basebin | tvbootstrap ✓ | bins present |
+| Persistence | launchd inject+reboot | none (intentional) | not needed for smoke |
+
+Architecture comparison:
+
+  tvrootshell TODAY:
+    App(KFD) → persona spawn → dt_helper → issue_file(0x4) FAIL → dash(plain spawn)
+
+  Dopamine PRODUCTION:
+    launchd jbserver → issue_to_process(flags=0) → client consume
+    → posix_spawn+systemhook → child checkin+consume → repeat
+
+================================================================================
+§6 KERNEL IDA — COMPLETE PIN TABLE (tvOS 16.5 j105a)
+================================================================================
+
+6.1 MAC label / profile
+  | VA | Symbol | Role |
+  |----|--------|------|
+  | 0xFFFFFFF006532930 | sub_532930 | mac_label_get(label, **slot 0**) → profile ptr |
+  | 0xFFFFFFF006532C68 | sub_532C68 | proc → slot0 profile (consume+issue) |
+  | 0xFFFFFFF006532A80 | sub_532A80 | apply/inherit profile to cred |
+  | 0xFFFFFFF006533304 | sub_533304 | spawn/fork inherit: parent→child slot0 |
+  | dword @ ECACE4 | = 0 | hardcoded slot index 0 in 532930 |
+
+  CLOSED: zero mac_label_get(..., 1) in sandbox kext. Slot 1 unsandbox noop.
+
+6.2 Extension ISSUE — MIG routine 5
+  | VA | Role |
+  |----|------|
+  | 0xFFFFFFF006550690 | sub_550690 — extension ISSUE handler |
+  | 0xFFFFFFF0065508A4 | MOV W27,#0x2D — **errno 45 EOPNOTSUPP** (PREFIXMATCH+subtype0) |
+  | 0xFFFFFFF006550908 | return 22 EINVAL — bad flag combo after sanitize |
+  | 0xFFFFFFF006550A04 | EPERM 1 — "forbidden-issue-extension-with-flags" |
+  | 0xFFFFFFF006550C40 | EPERM 1 — path/canonical mismatch |
+  | 0xFFFFFFF006550CD4 | sub_550CD4 — profile evaluate via 540F44 bytecode |
+  | 0xFFFFFFF006540F44 | sub_540F44 — Seatbelt bytecode evaluator |
+  | 0xFFFFFFF00588F009 | str "file-issue-extension" | sandbox op name |
+  | 0xFFFFFFF005890C03 | str "forbidden-issue-extension-with-flags" |
+
+  Issue path (flags=0, self-issue subtype 0):
+    copyin → flag sanitize (skip 45 branch if flags&4==0)
+    → 532C68(issuer proc) → 531F54(path vnode)
+    → 550CD4 → 540F44(op=60 file-issue-extension for subtype 0 case 0)
+    → token build → copyout
+
+  Issue path (issue_to_process, flags=0):
+    libsystem sets flags|0x30000 (pid targeting bits)
+    Kernel: 0x10000 path → proc_find → v14|=0x30000
+    Forbidden check: (v14 & 0x3FFF) — pid bits 0x30000 NOT in 0x3FFF → skip 550A04
+    → 550CD4 evaluate on **issuer** profile
+
+6.3 Extension CONSUME — MIG routine 6
+  | VA | Role |
+  |----|------|
+  | 0xFFFFFFF00655106C | sub_55106C — extension CONSUME handler |
+  | 0xFFFFFFF0065510E4 | BL 532C68 — fetch consumer slot0 profile |
+  | 0xFFFFFFF0065510E8 | CBZ — if profile NULL → handle=0 out |
+  | 0xFFFFFFF006551494 | "forbidden-extension-process-mismatch" (pid token mismatch) |
+  | 0xFFFFFFF00654FAF0 | extension_add → profile+8 hash attach |
+  | 0xFFFFFFF006551744 | copyout handle to userspace |
+
+  Consume prerequisites (CLOSED from build96–101):
+    slot0 profile MUST be non-NULL at 5510E8 (532C68 success)
+    **tvOS bug:** 532C68 gets ucred-as-proc from 5FF124 → always NULL @ consume
+    See ISSUE_CONSUME_DEFINITIVE_KNOW.txt §4
+
+6.4 File access ops (why dash dies without executable ext)
+  | Op | Name | When checked |
+  |----|------|--------------|
+  | 16 | file-map-executable | dyld mmap of /var/jb/lib*.dylib |
+  | 20 | file-read* | read /var/jb files |
+  | 28 | file-write* | write paths |
+  | 129 | process-exec* | exec /var/jb/bin/* |
+
+6.5 Issue failure errno map (for device log interpretation)
+  | errno | Meaning | Kernel site |
+  |-------|---------|-------------|
+  | 45 | EOPNOTSUPP | 5508A4 PREFIXMATCH+issue_file OR CANONICAL+non-file |
+  | 22 | EINVAL | 550908 bad flags; 550C7C token too long |
+  | 12 | ENOMEM | 550800 malloc fail |
+  | 3 | ESRCH | 55098C pid not found (issue_to_process) |
+  | 1 | EPERM | 550A04 forbidden-issue; 550C40 path mismatch; 550CD4 deny |
+
+================================================================================
+§7 USERSPACE IDA — libsystem_sandbox.dylib (tvOS 16.5)
+================================================================================
+
+  | VA | Symbol | Behavior |
+  |----|--------|----------|
+  | 0x1801B2550 | sandbox_extension_issue_file | subtype=0, no pid, flags&0xFFFCFFFF |
+  | 0x1801B256C | sandbox_extension_issue_file_to_process | flags\|0x30000, audit_token |
+  | 0x1801B3470 | __sandbox_extension_issue | MIG 5 sender |
+  | 0x1801B2728 | sandbox_extension_consume | MIG 6 sender |
+
+  CLOSED: issue_file always passes subtype=0 → PREFIXMATCH(0x4) always hits 5508A4.
+
+  Dopamine uses issue_file_to_process exclusively for JBROOT (jbdomain_systemwide.c:308).
+
+================================================================================
+§8 build102.4 FAILURE — CLOSED (NO GUESSING)
+================================================================================
+
+Device log (poc.txt):
+  build102.4 helper ext issue class=com.apple.app-sandbox.read
+    path=/private/var/jb/ flags=0x4 → token=(null) errno=45
+  verdict=HELPER_EXT_ISSUE_FAIL
+
+Code (dt_helper_sandbox_ext.m:11):
+  static const uint32_t kDT1024ExtFlags = 4;  // PREFIXMATCH
+
+Kernel (550690 decompile):
+  if ( (flags & 4) != 0 && subtype == 0 ) return 45;
+
+Conclusion: build102.4 failure is **our invalid flag choice**, not:
+  - trustcache
+  - consume gate
+  - dash/dyld
+  - tvOS blocking all extension issue
+
+See BUILD102.4_DEVICE_FAILURE_IDA_TRACE.txt. For consume root cause see
+ISSUE_CONSUME_DEFINITIVE_KNOW.txt §4 (5FF124 — builds 96–101 closed this).
+
+================================================================================
+§9–§12 DEFINITIVE KNOW + NEXT BUILD — SEE ISSUE_CONSUME_DEFINITIVE_KNOW.txt
+================================================================================
+
+**Previous §9 "NEEDS DEVICE TEST" for issue EPERM is WRONG — superseded.**
+
+build96–101 **already proved on device:**
+  ✓ issue flags=0 works from app (token_len=186, no forbidden-issue*)
+  ✗ consume always handle=0 errno=0 (even with slot0 preserved)
+  ✓ root cause = kernel 0xFFFFFFF0075FF124 loads ucred not proc into 532C68
+  ✓ build101: mirror_bad=A, proc_find_eq_ctx_proc=1
+
+build102.4 is a **separate** failure (flags=0x4 → errno 45). Fixing flags=0
+will restore issue in helper but **will not fix consume** (same 5FF124 path).
+
+Full tables, IDA pins, predictions, next-build plan:
+  → ISSUE_CONSUME_DEFINITIVE_KNOW.txt §1–§7
+  → sandbox-consume-kernel-mirror-trace.txt §23–§30
+  → process-exec-proof.txt §47–§48
+
+**Next functional build (not guess):**
+  build103+ must address **5FF124 consume dispatch** (patch [ctx,#0x10] proc).
+  KFD kwrite to __TEXT_EXEC = CLOSED NO. Launchd port alone = CLOSED NO.
+
+Optional build102.5 (flags=0 helper): confirmatory only — outcomes known.
+
+================================================================================
+§13 G1→G5 WORKFLOW (device procedure)
+================================================================================
+
+  G1 — KFD probe + dt_do_fun privesc (keep session open)
+  G2 — tvbootstrap extract to /var/jb
+  G3 — symlink audit
+  G4 — ldid smoke
+  G5 — sign + trustcache + helper ping + smokeExec dash
+
+  build103+ targets **5FF124 kernel dispatch fix** — not helper flags alone.
+
+================================================================================
+§14 IDA LOAD STATUS
+================================================================================
+
+LOADED and sufficient:
+  ✓ kernelcache.j105a.20L563 — 5FF124 verified MCP 2026-06-19 (0xF9400400)
+  ✓ libsystem_sandbox.dylib
+  ✓ libsandbox.1.dylib
+
+Optional: iOS 16.x kernelcache to compare 5FF124 (is bug tvOS-only?)
+
+================================================================================
+§15 poc.txt (build102.4) vs builds 96–101 — DO NOT CONFLATE
+================================================================================
+
+build102.4 poc: flags=0x4 → errno 45 (issue only)
+build96–101 poc: flags=0 → issue OK, consume handle=0 (in process-exec-proof)
+
+ChatGPT "architecture gap if self-issue fails" applied to 102.4 only.
+Self-issue **succeeds** with flags=0. Real gap is **consume dispatch @ 5FF124**.
+
+================================================================================
+§16 STUDY STATUS
+================================================================================
+
+  [x] Dopamine Layers 1–6 source trace
+  [x] build96–101 device issue/consume chain
+  [x] build101 ctx proof (mirror_bad=A)
+  [x] IDA 5FF124 dispatch bug (MCP verified)
+  [x] build102.4 errno 45 closed
+  [x] Definitive next build = 5FF124 fix, not EPERM matrix
+  [ ] Kernel patch device test (OPEN O1)
+  [ ] consume handle>0 (OPEN)
+  [ ] dash after consume (OPEN)
+
+================================================================================
+END MASTER_SANDBOX_BRIDGE_STUDY.txt
+================================================================================

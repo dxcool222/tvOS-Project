@@ -1,0 +1,194 @@
+================================================================================
+ISSUE + CONSUME — DEFINITIVE KNOW (DEVICE + IDA, NO GUESSING)
+================================================================================
+Date: 2026-06-19 (supersedes tentative §9 in earlier MASTER draft)
+Device: tvOS 16.5 j105a Apple TV 4K
+Kernel: kernelcache.j105a.20L563.macho
+Primary sources:
+  untitled folder 2/process-exec-proof.txt §34–§48
+  untitled folder 2/sandbox-consume-kernel-mirror-trace.txt §23–§30
+  build96–101 device poc (process-exec-proof)
+  build102.4 poc (flags=0x4 only)
+
+This document answers: "Will the next build work?" with **closed facts**, not
+staged guesses.
+
+================================================================================
+§1 EXECUTIVE — WHAT WE KNOW FOR CERTAIN
+================================================================================
+
+| Question | Answer | Proof |
+|----------|--------|-------|
+| Can app issue ext with flags=0? | **YES** | build96–101 device, token_len=186 |
+| Can app issue with flags=0x4? | **NO, errno 45** | kernel 550690 + build102.4 |
+| Can app consume issued token? | **NO, handle=0 errno=0** | build96–101 device |
+| Why consume fails? | **Kernel passes ucred as proc @ 5FF124** | IDA §47 + build101 |
+| Is launchd required to **mint** tokens? | **NO** | B5 device closed |
+| Is Dopamine launchd still relevant? | **YES for child propagation** | systemhook Layer 4 |
+| Will flags=0 fix alone unlock dash? | **NO** | consume still broken (K8) |
+| Can KFD patch 5FF124 safely? | **NO** | __TEXT_EXEC RX (mirror §24.2) |
+
+**Real blocker for G5 dash smoke:** consume syscall dispatch bug, NOT missing
+jbserver for issue, NOT trustcache, NOT wrong issue flags alone.
+
+================================================================================
+§2 DEVICE BUILD CHAIN 96 → 101 (APP G5 EXT PATH)
+================================================================================
+
+| Build | Issue read flags=0 | slot0 @ consume | consume handle | Notes |
+|-------|-------------------|-----------------|----------------|-------|
+| 96 | OK len=188 | -1 (unsandbox) | 0 | first proof issue works |
+| 97 | OK len=186 | preserved kptr | 0 | slot0=-1 theory disproven |
+| 98 | OK len=186 | preserved | 0 | exit=55113C class closed |
+| 99 | OK len=186 | full chain valid | 0 | proc/ucred/label logged |
+| 101 | OK len=186 | valid + ctx proof | 0 | mirror_bad=A, eq_proc=1 |
+
+No `forbidden-issue-extension*` in any run.
+
+build102.4 (helper, separate path):
+  issue flags=0x4 → errno 45 (never consumed)
+  Did NOT retest builds 96–101 consume findings.
+
+================================================================================
+§3 IDA — ISSUE vs CONSUME ASYMMETRY (WHY ISSUE OK + CONSUME FAIL COEXIST)
+================================================================================
+
+Both use same sandbox sysctl dispatch @ 5FF124 (loads ucred → 534E04 arg0).
+
+**ISSUE (550690, W1=5):**
+  5509C4  BL  532C68
+  5509CC  CBZ W22, loc_550A18    ; W22=extension type from userspace
+  For sandbox_extension_issue_file → type **0 (file)** → **always bypass**
+  NULL profile check @ 5509E4.
+  550CD4 can run with profile=NULL via 541068 fallback @ 540F44 op 14.
+  → Token string minted even when 532C68 returns NULL.
+
+**CONSUME (55106C, W1=6):**
+  5510E4  BL  532C68
+  5510E8  CBZ X0, loc_55113C      ; **NO bypass** — NULL → handle=0 copyout
+  Token parse / HMAC / 54FAF0 never reached when profile NULL.
+
+Device signature handle=0 errno=0 = **only** 55113C path (§41.3 closed).
+
+================================================================================
+§4 ROOT CAUSE — 5FF124 DISPATCH BUG (IDA MCP VERIFIED 2026-06-19)
+================================================================================
+
+Site: 0xFFFFFFF0075FF124  (__TEXT_EXEC sandbox sysctl path)
+
+MCP disasm:
+  5FF120  BL  _vfs_context_current_0
+  5FF124  LDR X0, [X0,#8]          ; bytes 0xF9400400
+  5FF140  BL  sub_83C4B0            ; mac_policy_iterate → 534E04
+
+vfs_context layout (CLOSED):
+  +0x8  = ucred    ← 5FF124 loads THIS
+  +0x10 = proc     ← _vfs_context_proc / _current_proc use THIS
+
+534E04 sets X19 = arg0 (ucred kptr) for all sandbox opcodes including consume:
+  535258  B 55106C
+  551090  MOV X21, X0               ; X21 = ucred mistaken for proc
+  5510E4  BL 532C68(X21)
+
+532C68 expects proc_t:
+  532C78  BL kauth_cred_proc_ref(proc)
+  _proc_ucred reads [proc+0x18] proc_ro → [+0x20] ucred
+  Feeding ucred kptr as proc → garbage proc_ro → Exit A @ 532C8C → NULL
+
+build101 device (pid 236):
+  proc_find_eq_ctx_proc=1
+  mirror_532C68(real proc) = NONE (valid profile)
+  mirror_532C68(ucred as proc) = Exit A
+  consume handle=0 errno=0
+
+**Semantic fix (NOT device-tested):**
+  5FF124: 0xF9400400  LDR X0,[X0,#8]
+       → 0xF9400810  LDR X0,[X0,#0x10]
+
+**KFD write to 5FF124: CLOSED NO**
+  Segment __TEXT_EXEC perm 0x5 (RX). Same class as prior sandbox __text patch panics.
+  See mirror-trace.txt §24.2–§24.4.
+
+================================================================================
+§5 DOPAMINE iOS — CORRECTED INTERPRETATION
+================================================================================
+
+Dopamine launchdhook issues tokens via issue_file_to_process(flags=0) because:
+  - Central issuer for **every child** via systemhook check-in
+  - Pipe-separated multi-path grants in one checkin
+  - NOT because sideloaded apps cannot call issue_file themselves
+
+On **tvOS 16.5 j105a**, even Dopamine's systemhook consume path would hit the
+same 55106C → 5FF124 bug unless kernel dispatch is fixed or iOS kernel differs
+(O6 — not compared in IDA yet).
+
+Dopamine still needed for tvrootshell long-term:
+  Layer 4 child injection (dash won't inherit ext without 533304 + profile+8)
+  Layer 6 persistence (out of scope for smoke)
+
+================================================================================
+§6 PREDICTIONS — NOT GUESSES (LOGIC FROM CLOSED FACTS)
+================================================================================
+
+| Action | Outcome | Basis |
+|--------|---------|-------|
+| helper issue flags=0 | token OK | K2 + 5509CC bypass + inherit |
+| helper issue flags=0x4 | errno 45 | K1 + build102.4 |
+| helper consume (no kernel fix) | handle=0 | K4/K8 |
+| app consume (no kernel fix) | handle=0 | build96–101 |
+| dash after failed consume | op-16 deny | build102.3.3 |
+| launchd port without 5FF124 fix | consume still 0 | same 55106C syscall |
+| flags=0 only IPA | **will NOT fix dash** | K4+K8 |
+
+================================================================================
+§7 NEXT BUILD — DEFINITIVE PLAN
+================================================================================
+
+**Skip (wrong problem):**
+  - issue EPERM matrix / launchd issuer for minting
+  - consume kernel BP on build102.4 log
+  - trustcache-only builds
+
+**Optional confirmatory (low value):**
+  build102.5: helper flags=0 — expect issue OK + consume fail (already known)
+
+**Required functional work (build103+):**
+
+  Option A — Kernel dispatch fix @ 5FF124 (primary)
+    Patch LDR [ctx,#8] → LDR [ctx,#0x10]
+    Requires non-KFD boot path (patched kernelcache / research §26)
+    Success: consume handle != 0
+
+  Option B — KFD attach ext to profile+8 without consume syscall
+    Bypass 55106C entirely; research 54FAF0 layout
+    High brick risk; only if Option A blocked
+
+  Option C — Full launchdhook port
+    Does NOT replace Option A on this tvOS kernel
+
+After consume handle > 0:
+  1. Triple consume on helper (read, rw, executable)
+  2. spawn dash — test 533304 inheritance
+  3. If child still denied → partial systemhook (Layer 4)
+
+================================================================================
+§8 IDA ADDRESSES QUICK REFERENCE
+================================================================================
+
+Dispatch bug:
+  0xFFFFFFF0075FF124  LDR X0,[X0,#8]  (ucred — wrong)
+  Patch target:        LDR X0,[X0,#0x10] (proc)
+
+Consume gate:
+  0xFFFFFFF0065510E8  CBZ X0,55113C
+
+Profile resolver:
+  0xFFFFFFF006532C68  proc → profile
+  0xFFFFFFF006532930  label → mac_label_get slot 0
+
+Issue errno 45:
+  0xFFFFFFF0065508A4  MOV W27,#0x2D
+
+================================================================================
+END ISSUE_CONSUME_DEFINITIVE_KNOW.txt
+================================================================================

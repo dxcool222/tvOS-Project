@@ -1,0 +1,11 @@
+/.
+/usr
+/var/jb/usr/lib
+/var/jb/usr/lib/libnettle.8.8.dylib
+/var/jb/usr/share
+/var/jb/usr/share/doc
+/var/jb/usr/share/doc/libnettle8
+/var/jb/usr/share/doc/libnettle8/AUTHORS
+/var/jb/usr/share/doc/libnettle8/NEWS.zst
+/var/jb/usr/share/doc/libnettle8/README.zst
+/var/jb/usr/lib/libnettle.8.dylib -> libnettle.8.8.dylib

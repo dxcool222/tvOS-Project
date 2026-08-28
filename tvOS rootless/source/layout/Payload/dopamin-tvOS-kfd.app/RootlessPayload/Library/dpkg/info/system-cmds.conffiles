@@ -1,0 +1,3 @@
+/var/jb/etc/pam.d/login
+/var/jb/etc/pam.d/login.term
+/var/jb/etc/pam.d/passwd

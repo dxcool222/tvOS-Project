@@ -1,0 +1,14 @@
+/.
+/usr
+/var/jb/usr/local
+/var/jb/usr/local/lib
+/var/jb/usr/local/lib/liblzma.5.dylib
+/var/jb/usr/share
+/var/jb/usr/share/doc
+/var/jb/usr/share/doc/liblzma5
+/var/jb/usr/share/doc/liblzma5/AUTHORS
+/var/jb/usr/share/doc/liblzma5/COPYING
+/var/jb/usr/share/doc/liblzma5/NEWS.zst
+/var/jb/usr/share/doc/liblzma5/README.zst
+/var/jb/usr/share/doc/liblzma5/THANKS.zst
+/var/jb/usr/share/doc/liblzma5/TODO.zst

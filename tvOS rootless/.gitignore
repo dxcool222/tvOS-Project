@@ -1,0 +1,49 @@
+# Build outputs (recreated by scripts/build.sh)
+source/.theos/
+source/build
+source/basebin/out
+.theos/
+build/
+basebin/out/
+DerivedData/
+*.ipa
+*.ips
+*.dSYM/
+source/dopamin-tvOS-kfd*.ipa
+
+# Out-of-tree build roots
+../tvOS rootless-build/
+../tvos-rootless-repro-build/
+
+# User-supplied Apple inputs (not redistributed)
+vendor/dyld/user/
+bootstrap/tars/*.tar.zst
+bootstrap/tars/*.tar
+source/.tools-cache/
+source/Tools/ldid
+
+# Local extraction workspaces
+work/
+artifacts/
+
+# IDE / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
+
+# SwiftPM host tool build cache / binary (built by scripts/build_machomerger_host.sh)
+Dependencies/Dopamine-2.x/BaseBin/MachOMerger/.build/
+Dependencies/Dopamine-2.x/BaseBin/MachOMerger/MachOMerger
+
+# Logs / device evidence
+*.log
+*_logs*.txt
+Burn*.txt
+panic*.ips
+newbuildrunfail*.txt
+darksword_seems_to_work.txt
+
+# Temp bridge paths (never commit)
+/tmp/dopamin-*

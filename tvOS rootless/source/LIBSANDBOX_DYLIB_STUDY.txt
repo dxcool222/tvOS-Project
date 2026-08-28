@@ -1,0 +1,341 @@
+================================================================================
+tvOS 16.5 — libsandbox.1.dylib IDA STUDY
+================================================================================
+Binary: tvos165-symbols/usr/lib/libsandbox.1.dylib
+IDB:   libsandbox.1.dylib.i64
+Base:  0x18CF3C000
+Date:  2026-06-19 (IDA Pro MCP port 13338)
+Cross-ref: LIBSYSTEM_SANDBOX_DYLIB_STUDY.txt, KERNEL_CACHE_IDA_DEEP_STUDY.txt,
+           DOPAMINE_LAYERS_STUDY.txt, iOS/Dopamine_Rootful/BaseBin/systemhook/
+
+Purpose: document profile compile/apply path — the function Dopamine systemhook
+hooks. NO code changes.
+
+================================================================================
+§1 EXECUTIVE SUMMARY
+================================================================================
+
+libsandbox.1.dylib is the **Seatbelt profile compile/apply** library. It is
+dlopen'd by libsystem_sandbox.dylib (sandbox_init_with_parameters) and directly
+by Dopamine systemhook (sandbox_apply hook target).
+
+Key findings for tvrootshell:
+
+  1. **sandbox_apply** @ 0x18CF3F2F0 is an 8-byte wrapper:
+       sandbox_apply(profile) → sandbox_apply_container(profile, NULL)
+
+  2. **apply_container** calls kernel MIG:
+       - routine **1** when profile->name (*profile != 0) — named profile path
+       - routine **0** when profile->name is NULL — bytecode profile path
+     This installs/updates the process **slot-0 Seatbelt profile** in kernel
+     (532A80 / 532930 chain — see kernel study).
+
+  3. **Userspace profile compilation is DISABLED on tvOS 16.5:**
+       sandbox_compile_string, sandbox_compile_file, sandbox_compile_entitlements
+       all return NULL and set error:
+         "profile compilation not supported on this platform"
+       Only **sandbox_compile_named** works — via kernel MIG **22** (0x16).
+
+  4. **No extension APIs** in this dylib — extension issue/consume stays in
+     libsystem_sandbox.dylib (MIG 5/6).
+
+  5. **No mac_label / slot / unsandbox** anywhere (same as libsystem_sandbox).
+
+  6. Dopamine **systemhook** hooks sandbox_apply via **dyld dlsym hook** (not
+     instruction patch). After original apply, hook calls
+     consume_tokenized_sandbox_extensions() using tokens from launchdhook checkin.
+
+For build102.3.3: helper never gets sandbox_apply hook + never consumes extensions
+into its live profile before spawning dash → op 16 deny unchanged.
+
+================================================================================
+§2 THREE-LAYER USERSPACE SANDBOX STACK (complete picture)
+================================================================================
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│ libsystem_sandbox.dylib                                                  │
+│   Extensions: issue (MIG 5), consume (MIG 6), check (MIG 2)              │
+│   Init orchestration: dlopen libsandbox for compile/apply                │
+└──────────────────────────────────────────────────────────────────────────┘
+         │ dlopen("/usr/lib/libsandbox.1.dylib")
+         ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│ libsandbox.1.dylib  ← THIS FILE                                          │
+│   compile_named (MIG 22) → profile object                                  │
+│   sandbox_apply → apply_container (MIG 0 or 1) → kernel slot-0 profile   │
+└──────────────────────────────────────────────────────────────────────────┘
+         │ __sandbox_ms("Sandbox", routine, args)
+         ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│ XNU Sandbox.kext                                                         │
+│   532A80 set profile / 532930 get slot-0 / 55106C consume extensions     │
+└──────────────────────────────────────────────────────────────────────────┘
+
+Dopamine adds systemhook between layers 2 and 3:
+  sandbox_apply_hook → orig apply (MIG 0/1) → consume JB tokens (MIG 6)
+
+================================================================================
+§3 EXPORT TABLE (28 symbols)
+================================================================================
+
+| Export                              | VA           | Offset  | Notes |
+|-------------------------------------|--------------|---------|-------|
+| _sandbox_create_params              | 0x18CF3EE6C  | 0x2E6C  | 24-byte params object |
+| _sandbox_set_param                  | 0x18CF3EEC4  | 0x2EC4  | key/value pairs |
+| _sandbox_free_params                | 0x18CF3EFB8  | 0x2FB8  | |
+| _sandbox_compile_file               | 0x18CF3EFE8  | 0x2FE8  | **STUB fail tvOS** |
+| _sandbox_compile_named              | 0x18CF3F120  | 0x3120  | **works** via MIG 22 |
+| _sandbox_compile_string             | 0x18CF3F1B8  | 0x31B8  | **STUB fail tvOS** |
+| _sandbox_compile_entitlements       | 0x18CF3F1F0  | 0x31F0  | **STUB fail tvOS** |
+| _sandbox_free_profile               | 0x18CF3F228  | 0x3228  | frees 24-byte profile |
+| _sandbox_apply_container            | 0x18CF3F260  | 0x3260  | **core apply** |
+| _sandbox_apply                      | 0x18CF3F2F0  | 0x32F0  | wrapper → container |
+| _sandbox_register_profile           | 0x18CF3F2F8  | 0x32F8  | **stub return 45** |
+| _sandbox_unregister_profile         | 0x18CF3F300  | 0x3300  | **stub return 45** |
+| _sandbox_unregister_all_profiles    | 0x18CF3F308  | 0x3308  | **stub return 45** |
+| _sandbox_inspect_pid                | 0x18CF3F310  | 0x3310  | → sb_inspect MIG 16 |
+| _sandbox_inspect_smemory            | 0x18CF3F404  | 0x3404  | **stub return 45** |
+| _sandbox_user_state_*               | 0x18CF3F40C+ | 0x340C+ | packbuff + MIG 15 |
+| _sandbox_register_sync_root         | 0x18CF3FB1C  | 0x3B1C  | MIG 69 (0x45) |
+| sb_packbuff_*                       | 0x18CF3E6D8+ | 0x06D8+ | internal serialization |
+
+Build ID export: _SANDBOX_BUILD_ID @ 0x1D48C78B8
+
+================================================================================
+§4 PROFILE OBJECT LAYOUT (24 bytes)
+================================================================================
+
+From sandbox_compile_named success path + sandbox_free_profile + apply_container:
+
+  struct sandbox_profile {          // 0x18 bytes allocated
+    char *primary;                  // +0x00 — profile name (named path)
+    void *field8;                   // +0x08 — bytecode ptr (MIG 0 path)
+    void *field10;                  // +0x10 — bytecode len/metadata (MIG 0 path)
+  };
+
+sandbox_compile_named(name, flags, errbuf):
+  1. MIG 22 with &name — kernel validates named profile exists
+  2. If MIG returns **0** (success): allocate 24 bytes, strdup(name) → primary
+  3. If MIG returns **non-zero**: fall back to compile_file (always fails tvOS)
+
+sandbox_apply_container(profile, container_path):
+  if (profile->primary != NULL) {
+    args = { profile->primary, container_path, strlen(container)+1 };
+    __sandbox_ms("Sandbox", **1**, &args);     // NAMED APPLY
+  } else {
+    args = { profile->field8, profile->field10, container_path, strlen+1 };
+    __sandbox_ms("Sandbox", **0**, &args);     // BYTECODE APPLY
+  }
+
+sandbox_apply(profile):
+  return sandbox_apply_container(profile, NULL);   // container = 0
+
+Disasm proof (apply_container @ 0x18CF3F260):
+  CBZ [X0]           → branch to LDP [X0,#8] (bytecode path)
+  MOV W1, #1         → named path MIG routine 1
+  ...
+  MOV W1, #0         → bytecode path MIG routine 0
+  BL  __sandbox_ms
+
+**tvOS implication:** TrollStore/container apps use **named profiles** (e.g.
+"container") compiled in kernel via MIG 22, then applied via MIG 1. The MIG 0
+bytecode path exists in code but userspace cannot produce bytecode on tvOS.
+
+================================================================================
+§5 tvOS — PROFILE COMPILATION DISABLED
+================================================================================
+
+All three userspace compile paths that read .sb files or raw strings fail:
+
+  sandbox_compile_string @ 0x18CF3F1B8:
+    snprintf(err, "profile compilation not supported on this platform")
+    return NULL
+
+  sandbox_compile_file @ 0x18CF3EFE8:
+    Opens /System/Library/Sandbox/Profiles/<name>.sb or /usr/share/sandbox/
+    On success opening file → same error message → fclose → return NULL
+    (file open works; compilation step deliberately blocked)
+
+  sandbox_compile_entitlements @ 0x18CF3F1F0:
+    Same stub error → return NULL
+
+Profile search paths (compile_file only, before fail):
+  /System/Library/Sandbox/Profiles/%s.sb
+  /usr/share/sandbox/%s.sb
+
+**Only working compile:** sandbox_compile_named → kernel MIG **22** (0x16).
+Kernel-side named profile lookup/validation; userspace gets back a profile
+object with strdup'd name only (no local bytecode).
+
+libsystem_sandbox sandbox_init_with_parameters flags mapping on tvOS:
+  flags=0 (compile_string)  → **will fail** on tvOS
+  flags=1 (compile_named)   → **works**
+  flags=2 (direct MIG 1)    → bypasses libsandbox compile (libsystem_sandbox)
+  flags=3 (compile_file)    → **will fail** on tvOS
+
+================================================================================
+§6 sandbox_apply — DOPAMINE systemhook HOOK TARGET
+================================================================================
+
+Dopamine systemhook (main.c):
+
+  gLibSandboxHandle = dlopen("/usr/lib/libsandbox.1.dylib", ...);
+  sandbox_apply_orig = dlsym(gLibSandboxHandle, "sandbox_apply");
+
+  dyld_hook_routine(gDyld, 17, dyld_dlsym_hook, ...);
+  // When libsystem_sandbox dlsym's "sandbox_apply", return sandbox_apply_hook
+
+  void *sandbox_apply_hook(void *profile) {
+    void *r = sandbox_apply_orig(profile);   // MIG 0/1 → kernel slot-0
+    consume_tokenized_sandbox_extensions(JB_SandboxExtensions);
+    return r;
+  }
+
+Hook timing:
+  - Called when **child process** applies Seatbelt profile during spawn/container
+    setup (after kernel has bound a profile object to the process cred).
+  - consume runs **after** apply so extensions attach to the **live profile**
+    that 532930 will read for op 16/129 checks.
+
+Token source (JB_SandboxExtensions):
+  - launchdhook systemwide_process_checkin issues read + read-write + executable
+    extensions on /var/jb via sandbox_extension_issue_file_to_process
+  - Pipe-separated tokens passed via dyldhook __jbinfo / jbclient_process_checkin
+  - systemhook constructor may also consume at init (if dyldhook didn't)
+
+tvrootshell gap:
+  - No systemhook injection into helper or dash child
+  - No launchdhook to issue per-process tokens
+  - build97 manual consume in app context ≠ consume on helper's profile at spawn
+
+================================================================================
+§7 MIG ROUTINE MAP (libsandbox.1.dylib only)
+================================================================================
+
+All via __sandbox_ms @ 0x18D265BA8, subsystem "Sandbox" @ 0x18CF3FE56.
+
+| W1 (dec) | W1 (hex) | API / function                    | Kernel (inferred) |
+|----------|----------|-----------------------------------|-------------------|
+| 0        | 0x00     | sandbox_apply_container (bytecode)| profile apply slot0 |
+| 1        | 0x01     | sandbox_apply_container (named)   | profile apply slot0 |
+| 15       | 0x0F     | sandbox_user_state_item_buffer_send | user state |
+| 16       | 0x10     | sb_inspect_subsystem              | inspect/dump |
+| 22       | 0x16     | sandbox_compile_named             | named profile lookup |
+| 69       | 0x45     | sandbox_register_sync_root        | sync root reg |
+
+Note: libsystem_sandbox.dylib uses many more MIG routines (2=check, 5=issue,
+6=consume, etc.) — see LIBSYSTEM_SANDBOX_DYLIB_STUDY.txt §9.
+
+Cross-kernel mapping (from prior kernel IDA):
+  MIG 6 consume  → sub_55106C
+  MIG 5 issue    → sub_550690
+  Apply (0/1)    → likely 532A80 profile install path (confirm with kernel BP)
+
+================================================================================
+§8 PARAMS OBJECT (sandbox_create_params / set_param)
+================================================================================
+
+sandbox_create_params @ 0x18CF3EE6C:
+  Allocates 24-byte object:
+    +0x00: pointer to key-value array (16-byte pairs: key ptr, value ptr)
+    +0x08: count (number of pairs × 2 slots)
+    +0x10: capacity (starts 0 from xmmword init)
+
+sandbox_set_param(params, key, value):
+  Linear search for existing key; append or update key/value pair.
+  Used before compile/apply in sandbox_init_with_parameters path.
+
+Not directly relevant to extension triple for /var/jb — params customize profile
+variables at compile/apply time (container paths, etc.).
+
+================================================================================
+§9 INSPECT / DEBUG APIs
+================================================================================
+
+sandbox_inspect_pid(pid, flags, err, &out) → sb_inspect_subsystem(1, pid, ...)
+  Loop up to 10 times with growing 4KB buffer; MIG 16 until success or errno≠63.
+  Returns packed sandbox state blob (sb_packbuff format).
+
+sandbox_inspect_smemory → stub return 45 (unsupported on tvOS).
+
+Useful for **device diagnostics** on helper vs app profile contents (future BP
+session complement).
+
+================================================================================
+§10 CLOSED — NO mac_label / EXTENSIONS IN libsandbox
+================================================================================
+
+IDA string/search:
+  mac_label, slot, unsandbox, extension, executable, com.apple → **0 matches**
+
+Extension issue/consume remains exclusively in libsystem_sandbox.dylib.
+Profile apply remains exclusively in libsandbox.1.dylib.
+Dopamine bridges them in systemhook sandbox_apply_hook.
+
+================================================================================
+§11 tvrootshell IMPLICATIONS (study only — no build)
+================================================================================
+
+WHAT THIS CLOSES:
+  - sandbox_apply does NOT read mac_label slot 1 (confirms kernel + libsystem)
+  - tvOS cannot compile custom .sb profiles in userspace
+  - Dopamine hook point is exactly sandbox_apply @ 0x18CF3F2F0 (8 bytes)
+  - Apply uses MIG 1 for container named profiles (TrollStore app path)
+
+WHAT IS STILL REQUIRED FOR /var/jb dash:
+  Option A (minimal, no systemhook port):
+    In helper process after privesc, before posix_spawn(dash):
+      sandbox_extension_issue_file × 3 (read, rw, executable on /var/jb)
+      sandbox_extension_consume × 3 on **helper pid profile**
+      verify handles != 0 (5510E8 gate)
+    Child inherits profile via 533304 — extensions should carry if consumed
+    into parent profile before fork/spawn.
+
+  Option B (Dopamine-full):
+    systemhook sandbox_apply_hook + launchdhook token issue — needs inject
+    infrastructure (Layer 4/6 — high scope on tvOS).
+
+WHAT NOT TO DO:
+  - Hook sandbox_apply without consume — apply alone doesn't grant /var/jb
+  - Rely on sandbox_compile_string/file on tvOS — hard-disabled
+  - Expect sandbox_register_profile (stub 45) to help
+
+OPEN (device/kernel):
+  - Confirm MIG 1 handler = 532A80 with helper pid at consume time
+  - build99 O1: 532C68 NULL at 5510E8 — which proc cred?
+  - Does persona-spawned helper share app cr_label?
+
+================================================================================
+§12 KEY ADDRESSES (libsandbox.1.dylib unslid)
+================================================================================
+
+| Symbol / site                         | VA           |
+|---------------------------------------|--------------|
+| Image base                            | 0x18CF3C000  |
+| sandbox_apply                         | 0x18CF3F2F0  |
+| sandbox_apply_container               | 0x18CF3F260  |
+| sandbox_compile_named                   | 0x18CF3F120  |
+| sandbox_compile_string                  | 0x18CF3F1B8  |
+| sandbox_compile_file                    | 0x18CF3EFE8  |
+| sandbox_free_profile                    | 0x18CF3F228  |
+| sandbox_create_params                   | 0x18CF3EE6C  |
+| sb_inspect_subsystem                    | 0x18CF3F324  |
+| __sandbox_ms import stub                | 0x18D265BA8  |
+| "Sandbox" string                        | 0x18CF3FE56  |
+| "profile compilation not supported..."  | 0x18CF3FEBA  |
+| "/System/Library/Sandbox/Profiles"      | 0x18CF3FE5E  |
+
+Dopamine hook symbol: dlsym(handle, "sandbox_apply") → 0x18CF3F2F0 (pre-hook)
+
+================================================================================
+§13 NEXT STUDY (no build)
+================================================================================
+
+1. Kernel IDA: map MIG routine 0/1/22 handlers in 534E04 → 532A80 chain
+2. Device: sandbox_inspect_pid on app vs helper — compare profile blobs
+3. Kernel BP 54BE48 spawn — when sandbox_apply fires for dash child
+4. No additional dylibs required unless tracing libdyld dlsym hook surface
+
+================================================================================
+END LIBSANDBOX_DYLIB_STUDY.txt
+================================================================================

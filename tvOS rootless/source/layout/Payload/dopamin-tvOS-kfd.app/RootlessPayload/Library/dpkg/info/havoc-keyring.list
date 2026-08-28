@@ -1,0 +1,5 @@
+/.
+/etc
+/var/jb/etc/apt
+/var/jb/etc/apt/trusted.gpg.d
+/var/jb/etc/apt/trusted.gpg.d/havoc.gpg

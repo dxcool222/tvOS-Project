@@ -1,0 +1,5 @@
+#!/bin/sh
+
+if [ "$1" = "configure" ] && [ -n "$2" ] && dpkg --compare-versions -- "$2" lt "950-2"; then
+	/usr/sbin/pwd_mkdb -p /etc/master.passwd
+fi

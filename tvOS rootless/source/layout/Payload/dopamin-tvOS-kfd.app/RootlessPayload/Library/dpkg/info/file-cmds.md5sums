@@ -1,0 +1,14 @@
+c72d8a9e87d019a87ae96d3981a3c710  usr/bin/compress
+59af1a099f79b08a7a96f1ae58f3bf74  usr/bin/pax
+fab3b3f4fca6ee727077a6390378a1a2  usr/bin/ipcrm
+2331b1167d9b29c2e28f0b72fdc7c96d  usr/bin/ipcs
+7d41ce12503e28aeecea9b21d475bea3  usr/bin/shar
+be6d2f598a0eefe780d99448b2d30ec3  usr/bin/chflags
+ac58d6fd2e532852695560bb328479fc  usr/bin/xattr
+be7850b2953d8baf19e7ff8196f7ab2b  usr/share/man/man1/shar.1.zst
+9aa6ec6f4d444c04367f10b7489efff1  usr/share/man/man1/ipcrm.1.zst
+2982704533c5792ec908c0f006e17ac2  usr/share/man/man1/ipcs.1.zst
+e1bd93ab1f1880e38439d716b436308c  usr/share/man/man1/xattr.1.zst
+44f8b6df7ef4bc4be3ed09946fb38e97  usr/share/man/man1/chflags.1.zst
+1d353323bd2ffd1d785e4100dee765ca  usr/share/man/man1/pax.1.zst
+f9012cab336de556599f636ec0a379b5  usr/share/man/man1/compress.1.zst

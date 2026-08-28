@@ -1,0 +1,374 @@
+================================================================================
+tvOS 16.5 — libsystem_sandbox.dylib IDA STUDY
+================================================================================
+Binary: tvos165-symbols/usr/lib/system/libsystem_sandbox.dylib
+IDB:   libsystem_sandbox.dylib.i64
+Base:  0x1801AD000
+Date:  2026-06-19 (IDA Pro MCP port 13338)
+Cross-ref: KERNEL_CACHE_IDA_DEEP_STUDY.txt, DOPAMINE_LAYERS_STUDY.txt
+
+Purpose: map userspace sandbox API → kernel handoff for tvrootshell planning.
+NO code changes.
+
+================================================================================
+§1 EXECUTIVE SUMMARY
+================================================================================
+
+libsystem_sandbox.dylib is a **thin MIG client** for the kernel `Sandbox`
+subsystem. It does **NOT**:
+
+  - read or write mac_label slots (no `mac_label` string/symbol in entire binary)
+  - implement unsandbox / slot-1 clear (Dopamine does that via kwrite in app)
+  - contain `com.apple.sandbox.executable` (that class string lives in kernel +
+    jailbreak code — passed as raw C string to issue APIs)
+  - export `sandbox_apply` (lives in **libsandbox.1.dylib**, dlopen'd at runtime)
+
+Every permission decision for op 16/129 happens in **kernel** after MIG dispatch.
+This dylib only packages arguments and calls `__sandbox_ms("Sandbox", routine, ...)`.
+
+For tvrootshell build102.3.3 wall:
+  App/helper calls `sandbox_extension_consume(token)` → MIG **routine 6**
+  → kernel `sub_55106C` → needs live slot-0 profile via `532C68/532930`.
+  Missing/incorrect consume on the **executing process profile** = op 16 deny
+  on dyld mmap — exactly what device logs show.
+
+================================================================================
+§2 ARCHITECTURE — TWO DYLIBS
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│ libsystem_sandbox.dylib (THIS FILE)                                     │
+│   sandbox_extension_{issue,consume,release}                             │
+│   sandbox_check / sandbox_init*                                         │
+│   → __sandbox_ms("Sandbox", routine#, &args)  → kernel MIG              │
+└─────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│ XNU Sandbox.kext (kernel IDB)                                           │
+│   534E04 syscall multiplexer / 55106C consume / 550690 issue            │
+│   532930 slot-0 profile → 540F44 evaluate (op 16, 129, …)               │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│ libsandbox.1.dylib — **IDA DONE** → LIBSANDBOX_DYLIB_STUDY.txt              │
+│   Path: tvos165-symbols/usr/lib/libsandbox.1.dylib @ base 0x18CF3C000    │
+│   sandbox_apply @ 0x18CF3F2F0 → apply_container → MIG 0/1 (slot-0 profile)│
+│   tvOS: compile_string/file **disabled**; only compile_named (MIG 22)    │
+│   systemhook hooks sandbox_apply via dyld dlsym → consume JB extensions    │
+└─────────────────────────────────────────────────────────────────────────┘
+
+Dopamine systemhook:
+  dlopen libsandbox.1.dylib → dlsym sandbox_apply → hook consumes extensions
+  at profile apply time (separate from libsystem_sandbox consume path).
+
+================================================================================
+§3 CLOSED — NO mac_label / SLOT 1 IN USERSPACE SANDBOX CLIENT
+================================================================================
+
+IDA searches (entire libsystem_sandbox.dylib):
+  mac_label     → 0 matches
+  slot          → 0 matches
+  unsandbox     → 0 matches
+  no-sandbox    → 0 matches
+  executable    → 0 matches (no com.apple.sandbox.executable)
+
+Conclusion (closes KERNEL doc O4 partially):
+  Dopamine `mac_label_set(label, 1, -1)` is **NOT implemented or mirrored** in
+  libsystem_sandbox. It is a **libjailbreak kwrite** on kernel cred, not part
+  of the sandbox userspace API stack.
+
+  Unsandbox for file access on iOS may involve other layers (AMFI, mount, or
+  non-sandbox MAC) — not this dylib.
+
+================================================================================
+§4 EXPORTED EXTENSION CLASS STRINGS (in dylib)
+================================================================================
+
+Global symbols → string literals (IDA @ __cstring):
+
+| Symbol                      | String                              | Used by |
+|-----------------------------|-------------------------------------|---------|
+| _APP_SANDBOX_READ           | com.apple.app-sandbox.read          | issue_file, build97 read ext |
+| _APP_SANDBOX_READ_WRITE     | com.apple.app-sandbox.read-write    | issue_fs_rw, build97 rw ext |
+| _APP_SANDBOX_MACH           | com.apple.app-sandbox.mach          | mach extensions |
+| _APP_SANDBOX_IOKIT_CLIENT   | com.apple.app-sandbox.iokit-client  | iokit extensions |
+| _IOS_SANDBOX_CONTAINER      | com.apple.sandbox.container         | container paths |
+| _IOS_SANDBOX_APPLICATION_GROUP | com.apple.sandbox.application-group | app groups |
+
+**NOT present in dylib:**
+  com.apple.sandbox.executable  ← Dopamine + tvrootshell build97 pass this
+                                  string manually (matches kernel @ 588E4FF)
+
+Flag constants (exported):
+  _SANDBOX_EXTENSION_DEFAULT       = 0x0
+  _SANDBOX_EXTENSION_CANONICAL     = 0x2
+  _SANDBOX_EXTENSION_PREFIXMATCH   = 0x4   ← used for path prefix (/var/jb/)
+  _SANDBOX_EXTENSION_NO_REPORT     = 0x10
+  _SANDBOX_CHECK_NO_REPORT         = 0x40000000
+
+================================================================================
+§5 EXTENSION ISSUE PATH (userspace → kernel)
+================================================================================
+
+5.1 Public wrappers
+
+  sandbox_extension_issue_file(class, path, flags)
+    → __sandbox_extension_issue(class, **0**, path, flags & 0xFFFCFFFF, 0, 0)
+    @ 0x1801B2550
+
+  **KERNEL CLOSED (build102.4 device):** flags & 0x4 (PREFIXMATCH) + subtype 0
+  → kernel 550690 @ 0xFFFFFFF0065508A4 returns **45 EOPNOTSUPP** before profile
+  check. Do NOT use PREFIXMATCH with issue_file. Dopamine uses flags **0**.
+  See BUILD102.4_DEVICE_FAILURE_IDA_TRACE.txt §3.
+
+  sandbox_extension_issue_file_to_process(class, path, flags, audit_token)
+    → __sandbox_extension_issue(class, 0, path, flags | **0x30000**, 
+                                token.pid @ +0x14, token.version @ +0x1C)
+    @ 0x1801B256C
+
+  Flags 0x30000 = 0x10000 | 0x20000:
+    Matches kernel 55106C consume checks:
+      (flags & 0x10000) → must match issuing pid
+      (flags & 0x20000) → must match pid version
+    Dopamine launchdhook uses issue_file_to_process for per-process tokens.
+
+5.2 Core issuer __sandbox_extension_issue @ 0x1801B3470
+
+  1. malloc(2048) for token string buffer
+  2. If flags bit 0: snprintf "invalid" (error path)
+  3. Pack args [class, subtype=0, path, flags, buf, pid, pidversion]
+  4. __sandbox_ms("Sandbox", **5**, &args)   ← MIG routine **5** = ISSUE
+  5. On failure: free buffer, preserve errno
+
+  Kernel target: sub_550690 (issue) → sub_532C68 → 532930(slot0)
+
+5.3 Dopamine launchdhook mapping (reference)
+
+  systemwide_process_checkin issues:
+    sandbox_extension_issue_file_to_process("com.apple.app-sandbox.read", JBROOT, ...)
+    sandbox_extension_issue_file_to_process("com.apple.sandbox.executable", JBROOT, ...)
+  Returns pipe-separated tokens → systemhook sandbox_extension_consume per token.
+
+  tvrootshell build97 uses sandbox_extension_issue_file (self-issue, no audit_token)
+  from app context — different flags path (no 0x30000 unless explicitly set).
+
+================================================================================
+§6 EXTENSION CONSUME PATH (userspace → kernel) — CRITICAL FOR build102.3.3
+================================================================================
+
+sandbox_extension_consume @ 0x1801B2728:
+
+  1. sub_1801B46A8(token, "invalid") — validate token prefix/Magic
+  2. sub_1801B46CC(token) — token length helper (strlen variant)
+  3. Build MIG args on stack:
+       [0] = token pointer
+       [1] = length + 1
+       [2] = &handle_out (int64)
+  4. __sandbox_ms("Sandbox", **6**, args)   ← MIG routine **6** = CONSUME
+  5. Return handle_out, or 0 if validate fail, or -1 if MIG error
+
+  Disasm proof:
+    1801B2774  MOV W1, #6
+    1801B2778  BL  __sandbox_ms
+
+  Kernel target: sub_55106C @ FFFFFFF00655106C
+    5510E4  BL 532C68(proc)     ; proc → profile from slot 0
+    5510E8  CBZ X0 → handle 0    ; build96 device failure
+
+  **Return value semantics:**
+    > 0  : extension handle (success)
+    0    : token invalid OR profile NULL (kernel zero copyout)
+    -1   : MIG/syscall error (errno set)
+
+  sandbox_consume_extension @ 1801B37B8:
+    wrapper: consume == -1 → return -1, else 0
+
+  sandbox_init_with_extensions @ 1801B3548:
+    For each path in array:
+      issue_file(READ_CLASS, path) → consume each token
+    Then sandbox_init(profile)
+    **Same pattern Dopamine wants** — issue + consume before spawn.
+
+================================================================================
+§7 SANDBOX CHECK PATH
+================================================================================
+
+sandbox_check(pid, operation, flags, ...) @ 1801B1A88
+  → sandbox_operation_fixup (normalize op name string)
+  → sandbox_check_common
+  → __sandbox_ms("Sandbox", **2**, &args)
+  → returns 0 allow, 1 deny, -1 error
+
+sandbox_check_common @ 1801B1B5C:
+  Maps check type flags (0x40000000 NO_REPORT, etc.) into arg bundle
+  Switch on check subtype → kernel opcode numbers (1-50, 241, …)
+
+Used by Dopamine systemhook:
+  sandbox_check(getpid(), "process-fork", SANDBOX_CHECK_NO_REPORT, NULL)
+  to decide if forkfix.dylib is needed.
+
+For tvrootshell: sandbox_check from app on "process-exec*" is a **diagnostic**
+only — real deny is kernel-side with richer context than userspace check.
+
+================================================================================
+§8 SANDBOX INIT / PROFILE APPLY (libsandbox.1.dylib path)
+================================================================================
+
+sandbox_init_with_parameters @ 1801B1688:
+
+  1. dlopen("/usr/lib/libsandbox.1.dylib")
+  2. dlsym sandbox_create_params / sandbox_set_param / sandbox_free_params
+  3. By flags:
+     flags=0 → dlsym sandbox_compile_string → sandbox_apply
+     flags=1 → sandbox_compile_named
+     flags=2 → __sandbox_ms("Sandbox", 1, ...) direct compile
+     flags=3 → sandbox_compile_file → sandbox_apply
+  4. sandbox_apply(profile) installs Seatbelt profile on **current process**
+     (creates/updates slot-0 profile object in kernel)
+
+This is how container profiles get attached — separate from extension consume.
+TrollStore app already has a container profile in slot 0 (device logs).
+
+systemhook hooks sandbox_apply in libsandbox.1.dylib to inject extension
+consumes when profile is applied to child processes.
+
+================================================================================
+§9 FULL MIG ROUTINE MAP (__sandbox_ms W1 = routine#)
+================================================================================
+
+Scanned all BL → 0x186E2214C in libsystem_sandbox.dylib:
+
+| W1   | Primary API(s)                                      | Notes |
+|------|-----------------------------------------------------|-------|
+| 1    | sandbox_init_with_parameters (compile path)       | profile compile |
+| 2    | sandbox_check_common, query_approval, bulk        | **check** |
+| 3    | sandbox_note                                        | |
+| 4    | sandbox_container_path_for_{pid,audit_token}        | |
+| **5**| **__sandbox_extension_issue**                       | **ISSUE** → kernel 550690 |
+| **6**| **sandbox_extension_consume**                       | **CONSUME** → kernel 55106C |
+| 7    | sandbox_extension_release{,_file}                   | |
+| 8    | sandbox_extension_update_file                       | |
+| 0xA  | sandbox_suspend                                     | |
+| 0xC  | sandbox_passthrough_access                          | |
+| 0xD  | sandbox_set_container_path_*                        | persona variants |
+| 0x15 | sandbox_check_bulk                                  | |
+| 0x16 | sandbox_builtin_query                               | |
+| 0x1C | sandbox_reference_retain_by_audit_token             | |
+| 0x1D | sandbox_reference_release                           | |
+| 0x1E | sandbox_init_from_pid                               | |
+| 0x2E | sandbox_enable_root_translation                     | |
+| 0x34 | sandbox_check_message_filter_{string,integer}       | |
+| 0x35 | sandbox_message_filter_release                      | |
+| 0x3D | sandbox_message_filter_retain                       | |
+| 0x3E-0x4F | app bundle/container register/unregister        | |
+| 0x103-0x107 | rootless_* volume ops                           | tvOS rootless helpers |
+
+All use first arg string **"Sandbox"** @ 0x1801B49A4.
+
+================================================================================
+§10 ROOTLESS HELPERS (same dylib — tvrootshell context)
+================================================================================
+
+Also exported from libsystem_sandbox.dylib (not jailbreak-specific but present):
+  rootless_check_trusted, rootless_protected_volume, rootless_convert_to_datavault,
+  rootless_suspend, etc.
+
+These use __sandbox_ms with W1=0x103..0x107 — separate MIG subsystems for
+rootless volume trust. Not directly related to /var/jb dash mmap but shows
+tvOS 16.5 ships rootless infrastructure in same client library.
+
+================================================================================
+§11 tvrootshell / DOPAMINE CROSS-MAPPING
+================================================================================
+
+| Step | Dopamine | libsystem_sandbox API | Kernel handler |
+|------|----------|----------------------|----------------|
+| Issue read ext on /var/jb | launchdhook issue_file_to_process | sandbox_extension_issue_file_to_process | 550690 |
+| Issue executable ext | same (string not in dylib) | same | 550690 |
+| Consume in app/child | systemhook constructor | sandbox_extension_consume (MIG 6) | 55106C |
+| Child spawn | posix_spawn + systemhook inject | — | 533304 inherit profile |
+| Unsandbox /var | mac_label_set slot 1 kwrite | **NOT IN THIS DYLIB** | not in 532930 |
+| Profile apply | libsandbox sandbox_apply hook | dlopen libsandbox.1.dylib | 532A80 slot0 |
+
+build97 tvrootshell path (from source):
+  dlopen libsystem_sandbox.dylib
+  dlsym sandbox_extension_issue_file + sandbox_extension_consume
+  issue triple: read, read-write, **com.apple.sandbox.executable** (manual string)
+  consume each → must hit 55106C with live slot0 on **app proc**
+
+build102.3.3 gap:
+  Helper runs as uid=0 but **never consumes** executable/read extensions into
+  its profile before spawning dash → child inherits bare container profile →
+  op 16 deny on libiosexec mmap.
+
+================================================================================
+§12 WHAT tvrootshell NEEDS (study conclusion — still no build)
+================================================================================
+
+From libsystem_sandbox + kernel IDA together:
+
+REQUIRED (matches Dopamine L3):
+  1. sandbox_extension_issue_file (or issue_to_process) for:
+       com.apple.app-sandbox.read
+       com.apple.app-sandbox.read-write
+       com.apple.sandbox.executable   ← string from jailbreak code, not dylib
+     on prefix /private/var/jb
+  2. sandbox_extension_consume on **the process that will exec/map** (helper
+     or child), returning handle != 0
+  3. slot 0 profile must remain valid through consume (build97 preserve — do
+     NOT clear slot 0)
+
+NOT SUFFICIENT:
+  - mac_label slot 1 kwrite (not in this API; kernel ignores slot1 anyway)
+  - trustcache alone (proven 102.3.3)
+  - persona-root uid 0 alone (proven build93)
+  - sandbox_check userspace probe
+
+OPTIONAL / Dopamine-full (higher scope):
+  - libsandbox.1.dylib sandbox_apply hook (systemhook) for auto-consume in children
+  - launchdhook issue_file_to_process with audit_token (needs launchd inject)
+  - sandbox_init_with_extensions pattern @ 1801B3548 (issue+consume array then init)
+
+STILL OPEN (device/kernel BP):
+  - build99: kread slot0 valid but 532C68 NULL at consume — which proc pointer?
+  - Does helper persona spawn use same cr_label as app? (not in this dylib)
+  - libsandbox.1.dylib IDA **DONE** → LIBSANDBOX_DYLIB_STUDY.txt (sandbox_apply @ 0x18CF3F2F0)
+  - Kernel: MIG apply routines 0/1 → 532A80 handler pins (kernel IDA)
+
+================================================================================
+§13 KEY ADDRESSES (libsystem_sandbox.dylib unslid)
+================================================================================
+
+| Symbol / site                         | VA           |
+|---------------------------------------|--------------|
+| Image base                            | 0x1801AD000  |
+| sandbox_extension_consume             | 0x1801B2728  |
+| __sandbox_extension_issue             | 0x1801B3470  |
+| sandbox_extension_issue_file          | 0x1801B2550  |
+| sandbox_extension_issue_file_to_process | 0x1801B256C |
+| sandbox_init_with_extensions          | 0x1801B3548  |
+| sandbox_init_with_parameters          | 0x1801B1688  |
+| sandbox_check / sandbox_check_common  | 0x1801B1A88 / 0x1801B1B5C |
+| __sandbox_ms import stub              | 0x186E2214C  |
+| "Sandbox" MIG subsystem string        | 0x1801B49A4  |
+| "com.apple.app-sandbox.read"          | 0x1801B4850  |
+| "com.apple.app-sandbox.read-write"    | 0x1801B486B  |
+| "/usr/lib/libsandbox.1.dylib"         | 0x1801B490A  |
+| "sandbox_apply" dlsym name            | 0x1801B4B7A  |
+
+Kernel counterparts (see KERNEL_CACHE_IDA_DEEP_STUDY.txt):
+  consume 55106C, issue 550690, profile 532930, mmap 53349C, inherit 533304
+
+================================================================================
+§14 NEXT STUDY (no build)
+================================================================================
+
+1. ~~Load libsandbox.1.dylib~~ **DONE** → LIBSANDBOX_DYLIB_STUDY.txt
+2. Kernel BP: correlate MIG routine 6 entry → 55106C with helper pid vs app pid
+3. Finish 54BE48 spawn profile install IDA (when does container profile bind)
+4. Document audit_token layout for issue_to_process (+0x14 pid, +0x1C version)
+
+================================================================================
+END LIBSYSTEM_SANDBOX_DYLIB_STUDY.txt
+================================================================================

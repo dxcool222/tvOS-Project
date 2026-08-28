@@ -1,0 +1,14 @@
+/.
+/var
+/var/jb
+/var/jb/usr
+/var/jb/usr/libexec
+/var/jb/usr/libexec/sftp-server
+/var/jb/usr/share
+/var/jb/usr/share/doc
+/var/jb/usr/share/doc/openssh-sftp-server
+/var/jb/usr/share/doc/openssh-sftp-server/README.zst
+/var/jb/usr/share/doc/openssh-sftp-server/TODO.zst
+/var/jb/usr/share/man
+/var/jb/usr/share/man/man8
+/var/jb/usr/share/man/man8/sftp-server.8.zst

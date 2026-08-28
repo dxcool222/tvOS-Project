@@ -1,0 +1,13 @@
+/.
+/etc
+/var/jb/etc/pam.d
+/var/jb/etc/pam.d/other
+/usr
+/var/jb/usr/lib
+/var/jb/usr/lib/libpam.2.dylib
+/var/jb/usr/share
+/var/jb/usr/share/doc
+/var/jb/usr/share/doc/libpam2
+/var/jb/usr/share/doc/libpam2/LICENSE
+/var/jb/usr/share/doc/libpam2/README.zst
+/var/jb/usr/share/doc/libpam2/TODO.zst

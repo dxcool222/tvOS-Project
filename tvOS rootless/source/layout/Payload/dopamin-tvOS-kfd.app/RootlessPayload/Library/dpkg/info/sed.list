@@ -1,0 +1,15 @@
+/.
+/usr
+/var/jb/usr/bin
+/var/jb/usr/bin/sed
+/var/jb/usr/share
+/var/jb/usr/share/doc
+/var/jb/usr/share/doc/sed
+/var/jb/usr/share/doc/sed/AUTHORS
+/var/jb/usr/share/doc/sed/COPYING
+/var/jb/usr/share/doc/sed/NEWS.zst
+/var/jb/usr/share/doc/sed/README.zst
+/var/jb/usr/share/doc/sed/THANKS.zst
+/var/jb/usr/share/man
+/var/jb/usr/share/man/man1
+/var/jb/usr/share/man/man1/sed.1.zst

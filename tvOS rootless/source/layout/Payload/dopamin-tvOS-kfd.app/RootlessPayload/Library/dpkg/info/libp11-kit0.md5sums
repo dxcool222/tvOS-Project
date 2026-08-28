@@ -1,0 +1,6 @@
+09583ba02d967402b7bad4856af127a0  usr/lib/libp11-kit.0.dylib
+4f09d403c510762c0a2306e95b0e2935  usr/share/doc/libp11-kit0/AUTHORS
+f55e87536e67ff857d98480849c65754  usr/share/doc/libp11-kit0/README.zst
+02933887f609807fbb57aa4237d14a50  usr/share/doc/libp11-kit0/COPYING
+950227d4edd6bfff757120993ea5b161  usr/share/doc/libp11-kit0/NEWS.zst
+161f8ec95326f47d853cb7c1ee76c7b8  etc/pkcs11/pkcs11.conf.example

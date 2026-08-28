@@ -1,0 +1,11 @@
+VARIANT=ROOTLESS_R24_CBR
+LAUNCHDHOOK516_BUILD_SOURCE=/Volumes/Untitled2/Apple TV Project/tvOS rootless/source/handoff516/source/launchdhook + /Volumes/Untitled2/Apple TV Project/tvOS rootless/source/handoff516/source/launchdhook/minimal + /Volumes/Untitled2/Apple TV Project/tvOS rootless/source/handoff516/source/launchdhook/cbr + /Volumes/Untitled2/Apple TV Project/tvOS rootless/source/handoff516/source/systemhook_cbr + /Volumes/Untitled2/Apple TV Project/tvOS rootless/source/handoff516/source/libjailbreak/jbroot.c
+HOOK_ENGINE=litehook_theos_16.4
+HOOK_DYLIB_PATH=/usr/lib/systemhook.dylib
+TWEAKLOADER=OFF
+launchdhook516.dylib=fcb82523dc5114773829361b09d5ca1c083df2b38d1bae6d8c19df3f8ffdd8ea
+systemhook.dylib=2c970345c6a33490783cc7de6370e21296db96a0e96808fd86ea7b0e9e41a92b
+libjailbreak.dylib=43f5c72cf897f3d2475bf23da3f3b6622b6b6c134c7be208d0299ef2529da4f5
+libchoma.dylib=0120b5e3d6639932f9ca7b92677e8cd6a0eb5d18ab61aef7b39627c8b8865101
+dt_opainject516=195b3368adf770fa618a459dffe6ba8a64a4b1523c842a9832d43bc77af0d57d
+dt_jbctl516=6fcede5b98ee244106b9bc0b64e9da94fb3464e0bfe671f53a99485ee466c067

@@ -1,0 +1,4 @@
+b7f8fc5ef1b65ee79b3b3b441810bf3b  var/jb/usr/libexec/sftp-server
+d431f6e9de2ef2b64bfa0972f1e8931c  var/jb/usr/share/man/man8/sftp-server.8.zst
+7f20355dd3c4bbe7338a0ad9fc44090e  var/jb/usr/share/doc/openssh-sftp-server/README.zst
+8e64e2ec63df9db3eac74d3d0ff3ba91  var/jb/usr/share/doc/openssh-sftp-server/TODO.zst

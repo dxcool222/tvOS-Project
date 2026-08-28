@@ -1,0 +1,1027 @@
+Package: apt
+Priority: required
+Section: Packaging
+Maintainer: Procursus Team <support@procurs.us>
+Architecture: appletvos-arm64-rootless
+Version: 2.9.4-1
+Pre-Depends: dpkg (>= 1.14.25-8), system-cmds (>= 854.40.2-2)
+Depends: libiosexec1 (>= 1.3.1), libapt-pkg6.0 (= 2.9.4-1), libgnutls30, gpgv, dpkg (>= 1.19.0), coreutils, procursus-keyring
+Replaces: apt1.8, apt1.4, libapt, libapt-pkg5.0, apt-lib, apt-key
+Conflicts: apt7 (<<1:0), apt1.4 (<<1:0), apt1.8, libapt-pkg5.0 (<<1:0), libapt (<<1:0), apt-key (<<1:0)
+Provides: apt1.8 (= 1:0), apt-lib (= 1:0), libapt (=1:0), apt-key (= 1:0)
+Description: commandline package manager
+ This package provides commandline tools for searching and
+ managing as well as querying information about packages
+ as a low-level access to all features of the libapt-pkg library.
+Installed-Size: 9992
+Status: install ok installed
+
+Package: base
+Version: 2
+Architecture: appletvos-arm64-rootless
+Essential: yes
+Maintainer: Procursus Team <support@procurs.us>
+Section: System
+Priority: required
+Description: underlying system directory structure
+Installed-Size: 2508
+Status: install ok installed
+
+Package: bash
+Version: 5.2.21
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Pre-Depends: dash (>= 0.5.11.3-1), libreadline8 (>= 8.2), profile.d (>= 0-5), debianutils (>= 4.11.2)
+Depends: libiosexec1 (>= 1.3.1), grep, libncursesw6, libreadline8 (>= 8.2), sed, debianutils (>= 4.11.2)
+Section: Terminal_Support
+Priority: optional
+Homepage: http://www.gnu.org/software/bash/
+Description: the best shell ever written by Brian Fox
+Installed-Size: 4704
+Status: install ok installed
+
+Package: libbrotli1
+Version: 1.1.0
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Section: Development
+Priority: optional
+Homepage: https://www.brotli.org/
+Description: Shared libraries for the Brotli compression format
+Depends: libiosexec1 (>= 1.3.1)
+Installed-Size: 952
+Status: install ok installed
+
+Package: ca-certificates
+Version: 20240607
+Architecture: all
+Maintainer: Procursus Team <support@procurs.us>
+Section: Utilities
+Priority: optional
+Multi-Arch: foreign
+Description: Common CA certificates
+ Contains the certificate authorities shipped with Mozilla's browser to allow SSL-based applications to check for the authenticity of SSL connections.
+ .
+ Please note that Procursus can neither confirm nor deny whether the certificate authorities whose certificates are included in this package have in any way been audited for trustworthiness or RFC 3647 compliance. Full responsibility to assess them belongs to the local system administrator.
+Installed-Size: 232
+Status: install ok installed
+
+Package: chariz-keyring
+Version: 2021.07.18
+Replaces: procursus-keyring (<< 2020.05.09-1)
+Conflicts: procursus-keyring (<< 2020.05.09-1)
+Architecture: all
+Maintainer: Procursus Team <support@procurs.us>
+Section: Keyrings
+Priority: optional
+Description: GnuPG keys for the Chariz repository
+Installed-Size: 4
+Status: install ok installed
+
+Package: coreutils
+Version: 9.5
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Depends: libiosexec1 (>= 1.3.1), sh, profile.d, libssl3, libintl8 (>= 0.20.0), libgmp10, libcrypt2
+Conflicts: coreutils-bin (<<1:0), shell-cmds (<< 207.40.1), text-cmds (<< 1:0), file-cmds (<< 272.250.1-1), system-cmds (<< 854.40.2-3)
+Replaces: netatalk (<= 2.0.3-6), coreutils-bin, shell-cmds (<< 207.40.1), text-cmds (<< 1:0), file-cmds (<< 272.250.1-1)
+Provides: md5sum, sha1sum, coreutils-bin (=9.5), dirname, kill, mktemp, su
+Section: Utilities
+Priority: standard
+Homepage: http://www.gnu.org/software/coreutils/
+Description: GNU core utilities
+ This package contains the basic file, shell and text manipulation
+ utilities which are expected to exist on every operating system.
+ .
+ Specifically, this package includes: 
+ arch base64 basename cat chcon chgrp chmod chown chroot cksum comm cp
+ csplit cut date dd df dir dircolors dirname du echo env expand expr
+ factor false flock fmt fold groups head hostid id install join link ln
+ logname ls md5sum mkdir mkfifo mknod mktemp mv nice nl nohup nproc numfmt
+ od paste pathchk pinky pr printenv printf ptx pwd readlink realpath rm 
+ rmdir runcon sha*sum seq shred sleep sort split stat stty sum sync tac 
+ tail tee test timeout touch tr true truncate tsort tty uname unexpand 
+ uniq unlink users vdir wc who whoami yes
+Installed-Size: 26588
+Status: install ok installed
+
+Package: darwintools
+Version: 1.6
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Depends: libiosexec1 (>= 1.3.1), grep, coreutils (>= 8.32-12)
+Recommends: uikittools (>= 2.0.0)
+Section: Administration
+Priority: required
+Description: Provides sw_vers, /usr/libexec/firmware, and /etc/resolv.conf
+Installed-Size: 212
+Status: install ok installed
+
+Package: dash
+Essential: yes
+Version: 0.5.12
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Pre-Depends: debianutils (>= 4.11.2)
+Depends: libiosexec1 (>= 1.3.1), debianutils (>= 4.11.2), libedit0
+Provides: sh
+Section: Terminal_Support
+Priority: required
+Homepage: http://gondor.apana.org.au/~herbert/dash/
+Description: POSIX-compliant shell
+ The Debian Almquist Shell (dash) is a POSIX-compliant shell derived
+ from ash.
+ .
+ Since it executes scripts faster than bash, and has fewer library
+ dependencies (making it more robust against software or hardware
+ failures), it is used as the default system shell on Debian systems.
+Installed-Size: 212
+Status: install ok installed
+
+Package: debianutils
+Version: 5.19
+Architecture: appletvos-arm64-rootless
+Essential: yes
+Maintainer: Procursus Team <support@procurs.us>
+Section: Utilities
+Priority: required
+Description: Miscellaneous utilities specific to Debian
+ This package provides a number of small utilities which are used
+ primarily by the installation scripts of Debian packages, although
+ you may use them directly.
+ .
+ The specific utilities included are:
+ add-shell remove-shell run-parts
+Depends: libiosexec1 (>= 1.3.1)
+Installed-Size: 352
+Status: install ok installed
+
+Package: diffutils
+Version: 3.10
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Depends: libiosexec1 (>= 1.3.1), libintl8
+Section: Development
+Priority: important
+Multi-Arch: foreign
+Homepage: http://www.gnu.org/software/diffutils/
+Description: compare two files for differences
+Installed-Size: 1944
+Status: install ok installed
+
+Package: diskdev-cmds
+Version: 718
+Architecture: appletvos-arm64-rootless
+Essential: yes
+Maintainer: Procursus Team <support@procurs.us>
+Section: System
+Priority: required
+Description: mount, quota, fsck, fstyp, fdisk, tunefs
+Depends: libiosexec1 (>= 1.3.1)
+Installed-Size: 1248
+Status: install ok installed
+
+Package: dpkg
+Version: 1.22.6
+Architecture: appletvos-arm64-rootless
+Essential: yes
+Maintainer: Procursus Team <support@procurs.us>
+Pre-Depends: tar (>= 1.23), libintl8 (>= 0.20)
+Depends: libiosexec1 (>= 1.3.1), sh, coreutils, diffutils, tar, liblzma5 (>= 5.2.5), libintl8, libz-ng2, libzstd1, libmd0
+Section: Packaging
+Priority: required
+Homepage: http://wiki.debian.org/Teams/Dpkg
+Description: package maintainance tools from Debian
+Installed-Size: 6288
+Status: install ok installed
+
+Package: essential
+Version: 0-5
+Architecture: appletvos-arm64-rootless
+Essential: yes
+Maintainer: Procursus Team <support@procurs.us>
+Pre-Depends: bootstrap | dpkg (>= 1.19.0)
+Depends: org.coolstar.sileo (>= 2.1) | xyz.willy.zebra (>= 1.1.19) | me.apptapp.installer (>= 5.1) | cydia | openssh-server
+Section: System
+Priority: required
+Description: Virtual package to keep you safe from uninstalling important packages.
+Installed-Size: 0
+Status: install ok installed
+
+Package: file-cmds
+Version: 430.100.5
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Section: Utilities
+Priority: important
+Description: chflags, compress, ipcrm, ipcs, pax
+Depends: libiosexec1 (>= 1.3.1)
+Installed-Size: 624
+Status: install ok installed
+
+Package: findutils
+Version: 4.9.0-1
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Replaces: shell-cmds (<< 207.40.1)
+Conflicts: shell-cmds (<< 207.40.1)
+Depends: libiosexec1 (>= 1.3.1), sh, sed, shell-cmds, libintl8
+Section: Utilities
+Priority: important
+Multi-Arch: foreign
+Homepage: http://www.gnu.org/software/findutils/
+Description: indexes and searches filesystems
+Installed-Size: 1908
+Status: install ok installed
+
+Package: firmware-sbin
+Version: 0-2
+Architecture: all
+Essential: yes
+Maintainer: Procursus Team <support@procurs.us>
+Pre-Depends: firmware (>= 11.0)
+Replaces: system-cmds (<= 433.4-11), diskdev-cmds (<= 421.7-3)
+Section: System
+Priority: required
+Multi-Arch: foreign
+Description: represents Telesphoreo / iPhoneOS conflicts
+Installed-Size: 0
+Status: install ok installed
+
+Package: gpgv
+Maintainer: Procursus Team <support@procurs.us>
+Architecture: appletvos-arm64-rootless
+Version: 2.4.5
+Depends: libiosexec1 (>= 1.3.1), libassuan0, libgcrypt20 (>= 1.10.3), libgpg-error0, libintl8, libnpth0
+Conflicts: gnupg2, gnupg (<< 2.4.5)
+Replaces: gnupg2
+Section: Security
+Priority: standard
+Description: GNU privacy guard - signature verification tool
+ GnuPG is GNU's tool for secure communication and data storage.
+ .
+ gpgv is actually a stripped-down version of gpg which is only able
+ to check signatures. It is somewhat smaller than the fully-blown gpg
+ and uses a different (and simpler) way to check that the public keys
+ used to make the signature are valid. There are no configuration
+ files and only a few options are implemented.
+Installed-Size: 480
+Status: install ok installed
+
+Package: grep
+Version: 3.11
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Replaces: text-cmds (<< 1:0)
+Conflicts: text-cmds (<< 1:0)
+Depends: libiosexec1 (>= 1.3.1), libpcre2-8-0
+Section: Utilities
+Priority: important
+Multi-Arch: foreign
+Homepage: http://www.gnu.org/software/grep/
+Description: searches files for regular expressions
+Installed-Size: 1132
+Status: install ok installed
+
+Package: havoc-keyring
+Version: 2022.06.03
+Architecture: all
+Maintainer: Procursus Team <support@procurs.us>
+Section: Keyrings
+Priority: optional
+Description: GnuPG keys for the Havoc repository
+Installed-Size: 4
+Status: install ok installed
+
+Package: launchctl
+Essential: yes
+Priority: required
+Section: System
+Maintainer: Procursus Team <support@procurs.us>
+Architecture: appletvos-arm64-rootless
+Version: 1:1.1.1
+Homepage: https://github.com/ProcursusTeam/launchctl
+Description: Tells launchd what to do
+Depends: libiosexec1 (>= 1.3.1)
+Installed-Size: 136
+Status: install ok installed
+
+Package: libapt-pkg6.0
+Priority: required
+Section: Libraries
+Maintainer: Procursus Team <support@procurs.us>
+Architecture: appletvos-arm64-rootless
+Version: 2.9.4-1
+Depends: libiosexec1 (>= 1.3.1), libgcrypt20, liblz4-1, liblzma5 (>= 5.2.5), libxxhash0, libzstd1
+Replaces: apt1.8, apt1.4, libapt, libapt-pkg5.0, apt-lib, apt-key, apt (<< 2.1.10-2)
+Conflicts: apt7 (<<1:0), apt1.4 (<<1:0), apt1.8 (<<1:0), libapt-pkg5.0 (<<1:0), libapt (<<1:0), apt-key (<<1:0), apt (<< 2.1.10-2)
+Provides: libapt-pkg (=2.9.4-1)
+Description: commandline package manager
+ This package provides commandline tools for searching and
+ managing as well as querying information about packages
+ as a low-level access to all features of the libapt-pkg library.
+Installed-Size: 7992
+Status: install ok installed
+
+Package: libassuan0
+Version: 2.5.7
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Depends: libiosexec1 (>= 1.3.1), libgpg-error0
+Section: Libraries
+Priority: optional
+Description: IPC library for the GnuPG components
+ Libassuan is a small library implementing the so-called "Assuan
+ protocol". This protocol is used for IPC between most newer GnuPG
+ components. Both server and client side functions are provided.
+Installed-Size: 172
+Status: install ok installed
+
+Package: libcrypt2
+Version: 4.4.36
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Section: Libraries
+Priority: optional
+Description: libcrypt shared library
+ libxcrypt is a modern library for one-way hashing of passwords.
+ It supports DES, MD5, NTHASH, SUNMD5, SHA-2-256, SHA-2-512, and
+ bcrypt-based password hashes
+ It provides the traditional Unix 'crypt' and 'crypt_r' interfaces,
+ as well as a set of extended interfaces like 'crypt_gensalt'.
+Depends: libiosexec1 (>= 1.3.1)
+Installed-Size: 268
+Status: install ok installed
+
+Package: libdimentio0
+Author: 0x7ff
+Maintainer: Procursus Team <support@procurs.us>
+Architecture: appletvos-arm64-rootless
+Version: 1:0~20230202.7ffffff
+Depends: libiosexec1 (>= 1.3.1), firmware (<< 14.0) | libkernrw0 | libkrw0
+Conflicts: com.michael.dimentio, com.kasiimh1.dimentio, com.0x7ff.dimentio
+Replaces: com.michael.dimentio, com.kasiimh1.dimentio, com.0x7ff.dimentio
+Section: Libraries
+Priority: optional
+Description: PoC tool for setting nonce without triggering KPP/KTRR/PAC. (Runtime libraries)
+Installed-Size: 84
+Status: install ok installed
+
+Package: libedit0
+Version: 3.1-20230828
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Section: Libraries
+Priority: optional
+Depends: libiosexec1 (>= 1.3.1), libncursesw6 (>= 6.0)
+Description: BSD editline and history libraries
+ Command line editor library provides generic line editing,
+ history, and tokenization functions.
+ .
+ It slightly resembles GNU readline.
+Installed-Size: 216
+Status: install ok installed
+
+Package: libffi8
+Maintainer: Procursus Team <support@procurs.us>
+Architecture: appletvos-arm64-rootless
+Version: 3.4.6
+Section: Libraries
+Priority: optional
+Multi-Arch: foreign
+Description: Foreign Function Interface library runtime
+ A foreign function interface is the popular name for the interface that
+ allows code written in one language to call code written in another
+ language.
+Depends: libiosexec1 (>= 1.3.1)
+Installed-Size: 108
+Status: install ok installed
+
+Package: libgcrypt20
+Version: 1.10.3
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Depends: libiosexec1 (>= 1.3.1), libgpg-error0 (>= 1.37)
+Section: Libraries
+Priority: optional
+Multi-Arch: foreign
+Description: LGPL cryptographic algorithm library (Libraries)
+Replaces: gcrypt, libgcrypt
+Conflicts: gcrypt (<<1:0), libgcrypt (<<1:0)
+Provides: gcrypt (=1.10.3), libgcrypt (=1.10.3)
+Installed-Size: 844
+Status: install ok installed
+
+Package: libgmp10
+Version: 6.3.0
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Section: Libraries
+Priority: optional
+Homepage: https://gmplib.org/
+Description: Multiprecision arithmetic library
+ GNU MP is a programmer's library for arbitrary precision
+ arithmetic (ie, a bignum package).  It can operate on signed
+ integer, rational, and floating point numeric types.
+ .
+ It has a rich set of functions, and the functions have a regular
+ interface.
+Depends: libiosexec1 (>= 1.3.1)
+Installed-Size: 576
+Status: install ok installed
+
+Package: libgnutls30
+Maintainer: Procursus Team <support@procurs.us>
+Architecture: appletvos-arm64-rootless
+Version: 3.8.5
+Provides: gnutls (= 1:0)
+Conflicts: gnutls (<< 1:0)
+Replaces: gnutls (<< 1:0)
+Depends: libiosexec1 (>= 1.3.1), libintl8 (>= 0.20.0), libgmp10, libidn2-0, libunistring5, libnettle8, libhogweed6, libp11-kit0, libtasn1-6, libzstd1, libbrotli1
+Section: Libraries
+Priority: optional
+Homepage: http://www.gnu.org/software/gnutls/
+Description: GNU TLS library - main runtime library
+ GnuTLS is a portable library which implements the Transport Layer
+ Security (TLS 1.0, 1.1, 1.2, 1.3) and Datagram
+ Transport Layer Security (DTLS 1.0, 1.2) protocols.
+ .
+ GnuTLS features support for:
+  - certificate path validation, as well as DANE and trust on first use.
+  - the Online Certificate Status Protocol (OCSP).
+  - public key methods, including RSA and Elliptic curves, as well as password
+    and key authentication methods such as SRP and PSK protocols.
+  - all the strong encryption algorithms, including AES and Camellia.
+  - CPU-assisted cryptography with VIA padlock and AES-NI instruction sets.
+  - HSMs and cryptographic tokens, via PKCS #11.
+ .
+ This package contains the main runtime library.
+Installed-Size: 1924
+Status: install ok installed
+
+Package: libgpg-error0
+Version: 1.48
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Depends: libiosexec1 (>= 1.3.1), libintl8
+Section: Libraries
+Priority: optional
+Description: GnuPG development runtime library
+ Library that defines common error values, messages, and common
+ runtime functionality for all GnuPG components.  Among these are GPG,
+ GPGSM, GPGME, GPG-Agent, libgcrypt, pinentry, SmartCard Daemon and
+ possibly more in the future.
+ .
+ It will likely be renamed "gpgrt" in the future.
+Installed-Size: 216
+Status: install ok installed
+
+Package: libhogweed6
+Version: 3.9.1
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Depends: libiosexec1 (>= 1.3.1), libgmp10, libnettle8 (= 3.9.1)
+Section: Libraries
+Priority: optional
+Homepage: http://www.lysator.liu.se/~nisse/nettle/
+Description: low level cryptographic library (public-key cryptos)
+Installed-Size: 320
+Status: install ok installed
+
+Package: libidn2-0
+Version: 2.3.7
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Depends: libiosexec1 (>= 1.3.1), libintl8, libunistring5
+Replaces: libidn2 (<< 2.3.7)
+Conflicts: libidn2 (<< 2.3.7)
+Provides: libidn2 (= 2.3.7)
+Section: Libraries
+Priority: optional
+Multi-Arch: foreign
+Homepage: https://www.gnu.org/software/libidn/#libidn2
+Description: Internationalized domain names (IDNA2008/TR46) library
+Installed-Size: 396
+Status: install ok installed
+
+Package: libintl8
+Essental: yes
+Version: 0.22
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Section: System
+Homepage: http://www.gnu.org/software/gettext/
+Description: internationalization helper for strings
+Depends: libiosexec1 (>= 1.3.1)
+Installed-Size: 208
+Status: install ok installed
+
+Package: libiosexec1
+Essential: yes
+Version: 1.3.1
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Section: Libraries
+Priority: required
+Homepage: http://github.com/ProcursusTeam/libiosexec
+Description: shim for execve w/ shell script support
+Depends: libiosexec1 (>= 1.3.1)
+Installed-Size: 76
+Status: install ok installed
+
+Package: libkrw0
+Author: Siguza
+Maintainer: Procursus Team <support@procurs.us>
+Architecture: appletvos-arm64-rootless
+Version: 1.1.1-2
+Provides: libkrw (= 1.1.1-2)
+Depends: libiosexec1 (>= 1.3.1), libkrw0-plugin
+Section: Libraries
+Priority: standard
+Homepage: https://github.com/Siguza/libkrw
+Description: A kernel R/W API for jailbreaks (Shared Library)
+Installed-Size: 56
+Status: install ok installed
+
+Package: liblz4-1
+Maintainer: Procursus Team <support@procurs.us>
+Architecture: appletvos-arm64-rootless
+Version: 1.9.4
+Conflicts: lz4 (<< 1.9.4)
+Section: Libraries
+Priority: important
+Homepage: http://tukaani.org/lzma/
+Description: Fast LZ compression algorithm library - runtime
+Depends: libiosexec1 (>= 1.3.1)
+Installed-Size: 164
+Status: install ok installed
+
+Package: liblzma5
+Version: 5.4.4
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Replaces: xz, lzma
+Conflicts: xz (<<1:0), lzma (<<3:0)
+Section: Libraries
+Priority: standard
+Homepage: https://tukaani.org/xz/
+Description: XZ-format compression library
+ XZ is the successor to the Lempel-Ziv/Markov-chain Algorithm
+ compression format, which provides memory-hungry but powerful
+ compression (often better than bzip2) and fast, easy decompression.
+ .
+ The native format of liblzma is XZ; it also supports raw (headerless)
+ streams and the older LZMA format used by lzma. (For 7-Zip's related
+ format, use the p7zip package instead.)
+Depends: libiosexec1 (>= 1.3.1)
+Installed-Size: 232
+Status: install ok installed
+
+Package: libmd0
+Version: 1.1.0
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Section: Libraries
+Priority: optional
+Description: message digest functions from BSD systems - shared library
+ The libmd library provides various message digest ("hash") functions,
+ as found on various BSDs on a library with the same name and with a
+ compatible API.
+Depends: libiosexec1 (>= 1.3.1)
+Installed-Size: 100
+Status: install ok installed
+
+Package: libncursesw6
+Version: 6.4
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Depends: libiosexec1 (>= 1.3.1), ncurses-term (= 6.4)
+Provides: ncurses (= 6.4)
+Replaces: ncurses (<< 6.4)
+Conflicts: ncurses (<< 6.4)
+Section: Libraries
+Priority: required
+Description: shared libraries for terminal handling (wide character support)
+Installed-Size: 776
+Status: install ok installed
+
+Package: libnettle8
+Version: 3.9.1
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Section: Libraries
+Priority: optional
+Homepage: http://www.lysator.liu.se/~nisse/nettle/
+Description: low level cryptographic library (symmetric and one-way cryptos)
+Depends: libiosexec1 (>= 1.3.1)
+Installed-Size: 348
+Status: install ok installed
+
+Package: libnpth0
+Version: 1.7
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Conflicts: gnupth, npth (<< 1.7)
+Replaces: npth (<< 1.7)
+Provides: npth (= 1.7)
+Section: Libraries
+Priority: optional
+Multi-Arch: foreign
+Description: replacement for GNU Pth using system threads
+Depends: libiosexec1 (>= 1.3.1)
+Installed-Size: 84
+Status: install ok installed
+
+Package: libp11-kit0
+Version: 0.25.3
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Conflicts: p11-kit (<< 0.25.3)
+Replaces: p11-kit (<< 0.25.3)
+Depends: libiosexec1 (>= 1.3.1), libintl8, libffi8, ca-certificates
+Section: Libraries
+Priority: standard
+Multi-Arch: foreign
+Homepage: https://p11-glue.github.io/p11-glue/p11-kit.html
+Description: library for loading and coordinating access to PKCS#11 modules - runtime
+ The p11-kit library provides a way to load and enumerate Public-Key
+ Cryptography Standard #11 modules, along with a standard configuration
+ setup for installing PKCS#11 modules so that they're discoverable. It
+ also solves problems with coordinating the use of PKCS#11 by different
+ components or libraries living in the same process.
+ .
+ This package contains the shared library required for applications loading
+ and accessing PKCS#11 modules.
+Installed-Size: 1156
+Status: install ok installed
+
+Package: libpam-modules
+Version: 1000.0
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Depends: libiosexec1 (>= 1.3.1), libpam2
+Section: Administration
+Description: Pluggable Authentication Modules for PAM
+ This package completes the set of modules for PAM. It includes the
+  pam_unix.so module as well as some specialty modules.
+Installed-Size: 636
+Status: install ok installed
+
+Package: libpam2
+Version: 20230627
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Depends: libiosexec1 (>= 1.3.1), libpam-modules
+Section: Administration
+Description: Pluggable Authentication Modules library
+ Contains the shared library for OpenPAM, a library that enables the
+ local system administrator to choose how applications authenticate users.
+ In other words, without rewriting or recompiling a PAM-aware application,
+ it is possible to switch between the authentication mechanism(s) it uses.
+ One may entirely upgrade the local authentication system without touching
+ the applications themselves.
+Installed-Size: 104
+Status: install ok installed
+
+Package: libpcre1
+Version: 8.45-1
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Replaces: pcre, libpcre
+Provides: pcre (= 1:0), libpcre (= 8.45-1)
+Conflicts: pcre (<< 1:0), libpcre (<< 1:0)
+Section: Libraries
+Priority: standard
+Multi-Arch: foreign
+Description: Old Perl 5 Compatible Regular Expression Library - runtime library
+ This is a library of functions to support regular expressions whose syntax 
+ and semantics are as close as possible to those of the Perl 5 language.
+ .
+ New packages should use the newer pcre2 packages, and existing
+ packages should migrate to pcre2.
+ .
+ This package contains the runtime library.
+Depends: libiosexec1 (>= 1.3.1)
+Installed-Size: 428
+Status: install ok installed
+
+Package: libpcre2-8-0
+Version: 10.43
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Replaces: pcre2, libpcre2
+Provides: pcre2 (= 1:0), libpcre2 (= 10.43)
+Conflicts: pcre2 (<< 1:0), libpcre2 (<< 1:0)
+Section: Libraries
+Priority: standard
+Multi-Arch: foreign
+Description: New Perl Compatible Regular Expression Library- 8 bit runtime files
+ This is PCRE2, the new implementation of PCRE, a library of functions
+ to support regular expressions whose syntax and semantics are as
+ close as possible to those of the Perl 5 language. New projects
+ should use this library in preference to the older library.
+ .
+ This package contains the 8 bit runtime library.
+Depends: libiosexec1 (>= 1.3.1)
+Installed-Size: 556
+Status: install ok installed
+
+Package: libreadline8
+Version: 8.2.0-1
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Provides: readline (= 8.2.0-1)
+Replaces: readline (<< 8.2.0-1)
+Conflicts: readline (<< 8.2.0-1)
+Depends: libiosexec1 (>= 1.3.1), libncursesw6
+Section: Libraries
+Priority: required
+Description: GNU readline and history libraries, run-time libraries
+Installed-Size: 428
+Status: install ok installed
+
+Package: libtasn1-6
+Version: 4.19.0
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Replaces: libtasn1 (<< 1:0)
+Conflicts: libtasn1 (<< 1:0)
+Provides: libtasn1 (= 4.19.0)
+Section: Libraries
+Priority: optional
+Multi-Arch: foreign
+Homepage: https://www.gnu.org/software/libtasn1
+Description: Manage ASN.1 structures (runtime)
+ Manage ASN1 (Abstract Syntax Notation One) structures.
+ The main features of this library are:
+   * on-line ASN1 structure management that doesn't require any C code
+     file generation.
+   * off-line ASN1 structure management with C code file generation
+     containing an array.
+   * DER (Distinguish Encoding Rules) encoding
+   * no limits for INTEGER and ENUMERATED values
+ .
+ This package contains runtime libraries.
+Depends: libiosexec1 (>= 1.3.1)
+Installed-Size: 132
+Status: install ok installed
+
+Package: libunistring5
+Version: 1.2
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Section: Libraries
+Priority: optional
+Multi-Arch: foreign
+Description: Unicode string library for C
+Homepage: https://www.gnu.org/software/libunistring/
+Depends: libiosexec1 (>= 1.3.1)
+Installed-Size: 1828
+Status: install ok installed
+
+Package: libxxhash0
+Version: 0.8.2
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Section: Libraries
+Description: shared library for xxhash
+ xxHash is an Extremely fast Hash algorithm, running at RAM speed limits.
+ It successfully completes the SMHasher test suite which evaluates collision,
+ dispersion and randomness qualities of hash functions. Code is highly portable,
+ and hashes are identical on all platforms (little / big endian).
+ .
+ This package contains the shared library.
+Depends: libiosexec1 (>= 1.3.1)
+Installed-Size: 56
+Status: install ok installed
+
+Package: libz-ng2
+Version: 2.1.6
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Section: Libraries
+Priority: standard
+Description: next gen zlib compression library - runtime
+ next generation zlib library implementing the deflate compression method
+ found in gzip and PKZIP. This package includes the shared library.
+Depends: libiosexec1 (>= 1.3.1)
+Installed-Size: 168
+Status: install ok installed
+
+Package: libzstd1
+Section: Libraries
+Maintainer: Procursus Team <support@procurs.us>
+Architecture: appletvos-arm64-rootless
+Version: 1.5.5
+Depends: libiosexec1 (>= 1.3.1), liblz4-1, liblzma5 (>= 5.2.5)
+Description: fast lossless compression algorithm
+ Zstd, short for Zstandard, is a fast lossless compression algorithm, targeting
+ real-time compression scenarios at zlib-level compression ratio.
+ .
+ This package contains the shared library.
+Installed-Size: 556
+Status: install ok installed
+
+Package: ncurses-bin
+Version: 6.4
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Depends: libiosexec1 (>= 1.3.1), libncursesw6 (= 6.4)
+Replaces: ncurses (<< 6.4)
+Conflicts: ncurses (<< 6.4)
+Section: Utilities
+Priority: important
+Description: terminal-related programs and man pages
+Installed-Size: 964
+Status: install ok installed
+
+Package: ncurses-term
+Version: 6.4
+Architecture: all
+Maintainer: Procursus Team <support@procurs.us>
+Depends: libncursesw6 (= 6.4)
+Replaces: ncurses (<< 6.4)
+Conflicts: ncurses (<< 6.4)
+Section: System
+Priority: required
+Description: This package contains terminfo data files to support most types of terminals.
+Installed-Size: 1524
+Status: install ok installed
+
+Package: libssl3
+Version: 3.2.1
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Depends: libiosexec1 (>= 1.3.1), ca-certificates
+Section: Libraries
+Priority: standard
+Description: Secure Sockets Layer toolkit - shared libraries
+ This package is part of the OpenSSL project's implementation of the SSL
+ and TLS cryptographic protocols for secure communication over the
+ Internet.
+ .
+ It provides the libssl and libcrypto shared libraries.
+Installed-Size: 5056
+Status: install ok installed
+
+Package: procursus-keyring
+Version: 2020.05.09-4
+Architecture: all
+Essential: yes
+Maintainer: Procursus Team <support@procurs.us>
+Depends: chariz-keyring, havoc-keyring
+Section: Keyrings
+Priority: required
+Description: GnuPG keys for the Procursus repo
+Installed-Size: 4
+Status: install ok installed
+
+Package: profile.d
+Priority: standard
+Section: Administration
+Maintainer: Procursus Team <support@procurs.us>
+Architecture: appletvos-arm64-rootless
+Version: 0-7
+Pre-Depends: system-cmds (>=805.220.1)
+Depends: zsh
+Description: makes packaging for /etc/profile reasonable
+Installed-Size: 12
+Status: install ok installed
+
+Package: sed
+Version: 4.9
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Replaces: text-cmds (<< 1:0)
+Conflicts: text-cmds (<< 1:0)
+Depends: libiosexec1 (>= 1.3.1), libintl8
+Section: Utilities
+Priority: important
+Multi-Arch: foreign
+Homepage: http://www.gnu.org/software/sed/
+Description: edits streams of text using patterns
+Installed-Size: 280
+Status: install ok installed
+
+Package: shell-cmds
+Version: 309
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Depends: libiosexec1 (>= 1.3.1), libpam2
+Conflicts: coreutils (<< 8.32-9)
+Provides: killall, which
+Section: Administration
+Priority: important
+Description: killall, renice, script, time, which, getopt, what, hexdump, su
+Installed-Size: 1464
+Status: install ok installed
+
+Package: shshd
+Author: Hayden Seay <me@diatr.us>
+Maintainer: Procursus Team <support@procurs.us>
+Architecture: appletvos-arm64-rootless
+Version: 1.1.1.1
+Depends: libiosexec1 (>= 1.3.1), libdimentio0 (>= 99), firmware (>= 12.2) | org.swift.libswift (>= 5.0)
+Section: Administration
+Priority: standard
+Description: SHSH blob saving daemon
+ After installing, this package will automatically save your blobs
+ to 1Conan's TSSSaver. The link to your specific blobs can be retrieved
+ by manually running `/usr/sbin/shshd` as root (sudo/su) and copying the output, or by
+ visiting "https://tsssaver.1conan.com/shsh/(your ecid in decimal form)".
+ .
+ This should be compatible with all devices using Procursus, including
+ A12+ devices, as it saves blobs with the entangled apnonce. Requires
+ you to set nonce generator before using.
+Installed-Size: 112
+Status: install ok installed
+
+Package: snaputil
+Version: 12.3
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Depends: libiosexec1 (>= 1.3.1), firmware (>= 10.3)
+Section: System
+Description: APFS Snapshot Tool.
+Homepage: https://github.com/ahl/apfs/
+Installed-Size: 92
+Status: install ok installed
+
+Package: sudo
+Essential: yes
+Maintainer: Procursus Team <support@procurs.us>
+Architecture: appletvos-arm64-rootless
+Version: 1.9.15p5
+Depends: libiosexec1 (>= 1.3.1), libintl8, libpam2
+Section: Administration
+Priority: required
+Description: temporarily assume root priviledges
+Installed-Size: 5968
+Status: install ok installed
+
+Package: system-cmds
+Version: 979.100.8
+Architecture: appletvos-arm64-rootless
+Essential: yes
+Maintainer: Procursus Team <support@procurs.us>
+Depends: libiosexec1 (>= 1.3.1), firmware-sbin, file-cmds, libcrypt2, libpam2
+Recommends: vi
+Provides: login, passwd, reboot
+Section: Administration
+Priority: required
+Description: iostat, login, passwd, sync, sysctl, pw
+Installed-Size: 3660
+Status: install ok installed
+
+Package: tar
+Version: 1.35
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Recommends: bzip2, gzip, xz-utils, zstd
+Depends: libiosexec1 (>= 1.3.1), libintl8
+Section: Archiving
+Priority: required
+Homepage: http://www.gnu.org/software/tar/
+Description: tool for making tape archives
+Installed-Size: 2808
+Status: install ok installed
+
+Package: uikittools
+Essential: yes
+Version: 2.1.7
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Section: Utilities
+Priority: required
+Suggests: uikittools-extra (= 2.1.7)
+Breaks: uikittools-extra (<< 2.1.6)
+Description: Command line access for UIKit/LaunchServices/CoreServices
+Depends: libiosexec1 (>= 1.3.1)
+Installed-Size: 888
+Status: install ok installed
+
+Package: vi
+Version: 070224
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Depends: libiosexec1 (>= 1.3.1), libncursesw6
+Provides: ex
+Section: Text_Editors
+Priority: standard
+Description: The original ex/vi text editor
+Installed-Size: 528
+Status: install ok installed
+
+Package: zsh
+Essential: yes
+Version: 5.9
+Architecture: appletvos-arm64-rootless
+Maintainer: Procursus Team <support@procurs.us>
+Depends: libiosexec1 (>= 1.3.1), libncursesw6, libpcre1, debianutils (>= 4.11.2)
+Pre-Depends: debianutils (>= 4.11.2)
+Section: Terminal_Support
+Priority: required
+Description: a shell with interactive features
+Installed-Size: 12144
+Status: install ok installed
+

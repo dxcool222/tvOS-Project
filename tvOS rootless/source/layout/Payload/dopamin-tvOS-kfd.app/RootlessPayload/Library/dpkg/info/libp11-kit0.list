@@ -1,0 +1,14 @@
+/.
+/etc
+/var/jb/etc/pkcs11
+/var/jb/etc/pkcs11/pkcs11.conf.example
+/usr
+/var/jb/usr/lib
+/var/jb/usr/lib/libp11-kit.0.dylib
+/var/jb/usr/share
+/var/jb/usr/share/doc
+/var/jb/usr/share/doc/libp11-kit0
+/var/jb/usr/share/doc/libp11-kit0/AUTHORS
+/var/jb/usr/share/doc/libp11-kit0/COPYING
+/var/jb/usr/share/doc/libp11-kit0/NEWS.zst
+/var/jb/usr/share/doc/libp11-kit0/README.zst

@@ -1,0 +1,2 @@
+/var/jb/etc/profile.d/cacerts.bootstrap.sh
+/var/jb/etc/ssl/certs/cacert.pem

@@ -1,0 +1,3 @@
+/var/jb/etc/pam.d/sshd
+/var/jb/etc/ssh/moduli
+/var/jb/etc/ssh/sshd_config

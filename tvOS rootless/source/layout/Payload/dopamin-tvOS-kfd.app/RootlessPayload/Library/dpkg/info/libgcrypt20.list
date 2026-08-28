@@ -1,0 +1,12 @@
+/.
+/usr
+/var/jb/usr/lib
+/var/jb/usr/lib/libgcrypt.20.dylib
+/var/jb/usr/share
+/var/jb/usr/share/doc
+/var/jb/usr/share/doc/libgcrypt20
+/var/jb/usr/share/doc/libgcrypt20/COPYING
+/var/jb/usr/share/doc/libgcrypt20/NEWS.zst
+/var/jb/usr/share/doc/libgcrypt20/README.zst
+/var/jb/usr/share/doc/libgcrypt20/THANKS.zst
+/var/jb/usr/share/doc/libgcrypt20/TODO.zst

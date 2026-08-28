@@ -1,0 +1,13 @@
+/.
+/Library
+/var/jb/Library/LaunchDaemons
+/var/jb/Library/LaunchDaemons/us.diatr.shshd.plist
+/usr
+/var/jb/usr/libexec
+/var/jb/usr/libexec/shshd-wrapper
+/var/jb/usr/sbin
+/var/jb/usr/sbin/shshd
+/var/jb/usr/share
+/var/jb/usr/share/doc
+/var/jb/usr/share/doc/shshd
+/var/jb/usr/share/doc/shshd/LICENSE

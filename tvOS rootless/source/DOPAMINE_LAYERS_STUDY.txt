@@ -1,0 +1,292 @@
+================================================================================
+DOPAMINE ROOTFUL (iOS) — LAYERS 1–6 STUDY
+================================================================================
+Reference tree: iOS/Dopamine_Rootful/
+Target comparison: tvrootshell-1/dopamin-tvOS-kfd/ (tvOS 16.5, KFD, /var/jb)
+Purpose: architecture reference only — NO porting decision implied
+Date: 2026-06-19
+Evidence: source files cited below; kernel side in KERNEL_CACHE_MAC_LABEL_STUDY.txt
+Master index: MASTER_SANDBOX_BRIDGE_STUDY.txt (gap matrix + build102.5 plan)
+
+================================================================================
+EXECUTIVE SUMMARY
+================================================================================
+
+Dopamine does NOT jailbreak by "clearing sandbox profile slot 0."
+It uses a stacked model:
+
+  Layer 1  Kernel privesc + mac_label slot **1** = -1 + CS_PLATFORM_BINARY
+  Layer 2  Runtime unsandbox wrapper (same slot 1 backup/restore via jbserver)
+  Layer 3  launchdhook issues sandbox **extensions**; systemhook **consumes** them
+  Layer 4  systemhook injected into children (posix_spawn / exec hooks)
+  Layer 5  Bootstrap (basebin + Procursus) — tvrootshell uses tvbootstrap instead
+  Layer 6  Persistence (userspace reboot, fakelib, protection) — high tvOS risk
+
+tvrootshell build102.3.3 proves: uid=0 helper + trustcache is NOT enough.
+dyld still hits file-map-executable deny on /var/jb dylibs — exactly what
+Layers 3–4 exist to fix in Dopamine.
+
+================================================================================
+MAC LABEL SLOTS — WHY DOPAMINE USES SLOT 1 (NOT SLOT 0)
+================================================================================
+
+Layout (libjailbreak/src/kernel.c — same on iOS and tvOS):
+
+  mac_label_get(label, slot)  → kread_ptr(label + (slot + 1) * 8)
+  mac_label_set(label, slot, v) → kwrite64(label + (slot + 1) * 8, v)
+
+  Slot 0 @ label+8   : Seatbelt **profile object pointer** (heap)
+  Slot 1 @ label+16  : separate MAC label word (Dopamine "unsandbox" target)
+  Slot 2 @ label+24  : (exists; root_set_mac_label allows slots 0–2)
+
+Dopamine elevatePrivileges (DOJailbreaker.m):
+
+  mac_label_set(label, 1, -1);          // NOT slot 0
+  // then tests NSFileManager contentsOfDirectoryAtPath:@"/var"
+  proc_csflags_set(proc, CS_PLATFORM_BINARY);
+
+Dopamine runUnsandboxed (DOEnvironmentManager.m):
+
+  jbclient_root_set_mac_label(1, -1, &labelBackup);
+  unsandboxBlock();
+  jbclient_root_set_mac_label(1, labelBackup, NULL);
+
+jbserver root_set_mac_label (jbdomain_root.c):
+
+  *orgLabel = mac_label_get(label, slot);
+  mac_label_set(label, slot, newLabel);
+
+Slot 0 is reserved for the live Seatbelt profile:
+
+  - Kernel sandbox fetch: 532930 → mac_label_get_0(label, **0**) only
+  - sandbox_extension_consume attaches to *(profile+8) on that object
+  - Clearing slot 0 to -1 makes 532930 return NULL → consume handle=0 (build96)
+
+root_steal_ucred (jbdomain_root.c) copies **slot 0** from client to kernel cred
+for bind-mount entitlement — another reason Dopamine never clears slot 0.
+
+WHY SLOT 1 IN ONE LINE:
+  Slot 0 = which Seatbelt profile (rules + extension container).
+  Slot 1 = Dopamine's chosen "disable MAC sandbox enforcement" word for the
+  app process during privesc / short unsandbox blocks — orthogonal to profile ptr.
+
+tvOS device + IDA (CLOSED — see KERNEL_CACHE_IDA_DEEP_STUDY.txt §1):
+  slot1 is already 0xffffffffffffffff BEFORE privesc on dopamin-tvOS-kfd.
+  Kernel sandbox kext has **zero** mac_label_get(label, 1) call sites.
+  532930 hardcodes slot 0 via dword_ECACE4=0.
+  Re-writing slot 1 to -1 is noop for op 16/129; seatbelt uses slot 0 profile.
+  Dopamine slot-1 clear does NOT map to sandbox evaluate in this kernel build.
+
+================================================================================
+LAYER 1 — KERNEL PRIVESC + INITIAL UNSANDBOX
+================================================================================
+
+Source flow (DOJailbreaker.m jailbreak pipeline):
+
+  gatherSystemInformation → doExploitation → buildPhysRWPrimitive
+  → cleanUpExploits → elevatePrivileges → ...
+
+elevatePrivileges does:
+
+  1. kwrite uid/gid 0 on proc + ucred (svuid, ruid, uid, rgid, svgid, groups)
+  2. Clear P_SUGID on proc->flag if set
+  3. mac_label_set(label, **1**, -1)     ← slot 1 unsandbox
+  4. Verify /var listable (NSFileManager)
+  5. setenv HOME/CFFIXED_USER_HOME/TMPDIR to /var/root paths
+  6. proc_csflags_set(CS_PLATFORM_BINARY) + csops verify
+
+Primitives: KFD/exploit → phys R/W → direct kwrite on cred/label
+(libjailbreak kwrite path; does NOT call kernel mac_label_set syscall with -1
+ — that would panic per kernel 82A6D4).
+
+tvrootshell today (dt_do_fun.m → dt_build97_privesc_preserve_slot0):
+
+  uid/gid 0 + CS_PLATFORM_BINARY + **preserve slot 0** (no mac_label_set -1 on 0)
+  Does NOT call mac_label_set(label, 1, -1) like Dopamine Layer 1.
+
+Gap vs Dopamine Layer 1: missing slot-1 clear experiment; preserved slot 0 is
+correct for extension consume but does not replicate Dopamine's full privesc.
+
+================================================================================
+LAYER 2 — RUNTIME UNSANDBOX (SCOPED)
+================================================================================
+
+DOEnvironmentManager runUnsandboxed:
+
+  When jailbroken: jbclient_root_set_mac_label(1, -1, &backup) around a block,
+  then restore slot 1 from backup.
+
+Used for: respring, rebootUserspace, bootstrap file ops, package manager, etc.
+
+Mechanism: XPC to launchdhook jbserver → root_set_mac_label in kernel via
+kwrite (same libjailbreak mac_label_set).
+
+tvrootshell: no jbserver, no runUnsandboxed equivalent. App runs inside
+TrollStore container for entire session except phys-rw patches on self proc.
+
+================================================================================
+LAYER 3 — SANDBOX EXTENSIONS (CENTRAL TO /var/jb ACCESS)
+================================================================================
+
+launchdhook systemwide_process_checkin (jbdomain_systemwide.c):
+
+  **Issuer process:** launchd (jbserver inside launchdhook) — NOT the client app.
+  **Issue API:** sandbox_extension_issue_file_**to_process**(..., **flags=0**, audit_token)
+  **NOT** sandbox_extension_issue_file (self-issue).
+
+  For each checking-in process (audit_token):
+    - issue_file_to_process("com.apple.app-sandbox.read", JBROOT_PATH(""), **0**, token)
+    - issue_file_to_process("com.apple.sandbox.executable", JBROOT_PATH(""), **0**, token)
+    - issue_file_to_process read-write on /private/var/mobile, /Library, etc.
+    - Returns pipe-separated tokens in *sandboxExtensionsOut
+
+Also: cs_allow_invalid(proc), optional CS_DEBUGGED, ptrauth_disable (arm64e),
+setuid fixup from binary mode bits.
+
+systemhook (main.c constructor):
+
+  1. parse_dyldhook_jbinfo OR jbclient_process_checkin → get JB_SandboxExtensions
+  2. consume_tokenized_sandbox_extensions() on each token
+  3. Hook sandbox_apply → consume extensions again at apply time
+  4. litehook posix_spawn / execve
+
+Extension classes map to kernel ops (IDA §35.5–36.3 in process-exec-proof.txt):
+
+  com.apple.app-sandbox.read           → op 20  file-read*
+  com.apple.app-sandbox.read-write     → op 28  file-write*
+  com.apple.sandbox.executable         → op 129 process-exec* AND op 16 file-map-executable
+
+Tokens attach to profile+0x98 hash on the **slot 0 profile object**.
+Child inherits same profile via 533304 → 532A80 (fork/spawn cred inherit).
+
+tvrootshell build97–100 attempted app-context issue+consume (no launchdhook).
+build96: consume handle=0 when slot0 cleared; build97+: preserve slot0.
+build102.3.3: trustcache + persona-root dt_helper works; **no extension grant**
+on helper or dash child → dyld mmap deny persists.
+
+build102.4 (device): helper entered ext code but issue_file(read, /private/var/jb/,
+**flags=0x4**) → token NULL **errno=45**. Kernel 550690: PREFIXMATCH forbidden with
+issue_file subtype 0 (IDA closed). Consume/5510E8 never reached.
+
+**Note:** builds 96–101 already proved flags=0 **issue works** from app and
+**consume always fails** (5FF124 ucred-as-proc). build102.4 retested only wrong
+flags in helper — did not advance consume diagnosis.
+See ISSUE_CONSUME_DEFINITIVE_KNOW.txt.
+
+================================================================================
+LAYER 4 — CHILD PROCESS INHERITANCE
+================================================================================
+
+systemhook posix_spawn_hook_shared (common.c):
+
+  - Injects HOOK_DYLIB_PATH (systemhook.dylib) into child via posix_spawn attrs
+  - Child constructor runs same check-in + extension consume path
+  - Trust cache / platformize / jetsam hooks as needed
+
+launchdhook spawn_hook.c: same pattern inside launchd after opainject.
+
+Without Layer 4, a root helper spawning dash does NOT load systemhook.
+IDA 533304/532A80: child gets **same profile kptr** as parent slot0 — if parent
+**consumed** extensions before spawn, profile+8 should carry them (O5 device-open).
+
+This matches build102.3.3 (consume never succeeded, so extensions never attached):
+
+  dt_helper uid=0 spawns dash → child dyld:
+  "sandbox blocked mmap of /private/var/jb/usr/lib/libiosexec.1.dylib"
+  (op 16 file-map-executable)
+
+================================================================================
+LAYER 5 — BOOTSTRAP (USERLAND)
+================================================================================
+
+Dopamine:
+
+  prepareBootstrap → DOBootstrapper (bootstrapfs, download Procursus, basebin)
+  PATH includes /var/jb/{s}bin paths
+  loadBasebinTrustcache (basebin.tc from app bundle)
+  setenv PATH/TERM
+
+tvrootshell (keep per project constraints):
+
+  G2 tvbootstrap-ssh-1900.tar.zst → /var/jb (Procursus subset)
+  NOT Dopamine basebin / jbinit
+  G5 installs/signs/trusts dt_helper at /var/jb/usr/bin/dt_helper
+
+Alignment: both need signed binaries + trustcache for /var/jb executables.
+Dopamine additionally relies on Layer 3–4 for sandbox permission to load them.
+
+================================================================================
+LAYER 6 — PERSISTENCE / SYSTEM INTEGRATION
+================================================================================
+
+Dopamine post-bootstrap (DOJailbreaker.m):
+
+  injectLaunchdHook:
+    - boomerang server in app → jbctl stash port → opainject launchdhook into PID 1
+  applyProtection (private preboot)
+  createFakeLib (dyld fakelib bind mount + trustcache)
+  finalizeBootstrap, duplicate app check
+  finalize → rebootUserspace
+
+launchdhook hosts jbserver (physrw boomerang, trustcache, root domain, systemwide).
+
+tvrootshell explicit DO NOT (project history):
+
+  - opainject / launchdhook wholesale port
+  - userspace reboot / fakelib bind mounts
+  - launchd graph patches (build76 remount N/A, panic history)
+  - /var/jb/basebin creation
+
+Layer 6 is reference-only for tvOS; any persistence must be far smaller risk.
+
+================================================================================
+LAYER MAP vs tvrootshell build102.3.3
+================================================================================
+
+| Layer | Dopamine has | tvrootshell has | Gap for dash/libiosexec |
+|-------|--------------|-----------------|-------------------------|
+| 1 privesc | uid0 + slot1=-1 + platform | uid0 + slot0 preserved + platform | slot1=-1 not tried; may be noop on tvOS |
+| 2 runtime unsandbox | jbclient slot1 wrap | none | minor for one-shot G5 |
+| 3 extensions | launchdhook issues per-process | build97 EXT abandoned (vfs_context bugs) | **CRITICAL** — no tokens on helper/child |
+| 4 child hook | systemhook inject + consume | persona spawn only | **CRITICAL** — dash has no hook/consume |
+| 5 bootstrap | basebin+Procursus | tvbootstrap+dt_helper | OK (binaries present) |
+| 6 persist | launchd inject+reboot | none (intentional) | not required for smoke test |
+
+================================================================================
+WHAT TO BORROW vs NOT (PLANNING)
+================================================================================
+
+SAFE TO STUDY / MINIMAL EXPERIMENTS (when coding allowed):
+
+  A. Dopamine-style mac_label_set(label, **1**, -1) on app + helper proc with
+     before/after logs (slot0, slot1, /var list, dash smoke). Expectation on
+     tvOS: likely noop if slot1 already -1; low brick risk if kwrite-only.
+
+  B. Extension issue+consume on **helper proc** with slot0 preserved (build97
+     triple) — fix vfs_context path, not blind revert to build100.
+
+  C. After consume on helper, spawn dash without systemhook — child inherits
+     profile+extensions via 533304 if consume attached to shared profile.
+
+DO NOT BLIND PORT:
+
+  - injectLaunchdHook / opainject into launchd
+  - userspace reboot, fakelib, protection bind mounts
+  - Clearing slot 0 for "unsandbox" (breaks consume; proven build96)
+  - Kernel text patches, sandbox_extension_consume without 5510E8 chain fix
+
+================================================================================
+KEY SOURCE FILES (Dopamine)
+================================================================================
+
+  Application/Dopamine/Jailbreak/DOJailbreaker.m       — pipeline, elevatePrivileges
+  Application/Dopamine/Jailbreak/DOEnvironmentManager.m  — runUnsandboxed, bootstrap
+  BaseBin/libjailbreak/src/kernel.c                      — mac_label_get/set
+  BaseBin/launchdhook/src/jbserver/jbdomain_root.c       — root_set_mac_label, steal_ucred
+  BaseBin/launchdhook/src/jbserver/jbdomain_systemwide.c — systemwide_process_checkin
+  BaseBin/systemhook/src/main.c                        — consume, sandbox_apply hook
+  BaseBin/systemhook/src/common.c                        — posix_spawn_hook_shared
+
+================================================================================
+END DOPAMINE_LAYERS_STUDY.txt
+================================================================================

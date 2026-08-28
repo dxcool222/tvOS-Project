@@ -1,0 +1,17 @@
+{
+  "target": "AppleTV6,2/20L563",
+  "source_sha256": "96806a0e57eef714ec806063714101f09afbbdd968346d0d6ba8c4d635b11fdf",
+  "source_uuid": "7c25ad4d-2c32-3ae3-a52c-0af299cdda68",
+  "ida_symbol_vmaddr": "0x1cd07ffdc",
+  "stock_patch_offset": "0x3fdc",
+  "file_patch_offset": "0x3fdc",
+  "verified_prologue": "ff0301d1f65701a9f44f02a9fd7b03a9",
+  "patch": "e01f80d2c0035fd6",
+  "patched_premerge_sha256": "405c1e6939df5b0a4b02294222ceb0a60c7ce77d85dca2c2c8a2b5a41526bce4",
+  "uuid_prefix": "DOPATV165\\0",
+  "generated_patch_offset": "0x7fdc",
+  "generated_canonical_sha256": "50a5b5b6ec9b0980551519875876777692a0f4417d3c5692c2f2d1312d782396",
+  "generated_uuid": "444F5041-5456-3136-3500-0AF299CDDA68",
+  "patched_merged_signed_sha256": "e1824f701cbfa38f96f3a62565351f19106e7fc33524600caecc3f942edc16cd",
+  "dyldhook_merge_sha256": "33bbae7a27efc0ae9781ca0ad17bf3c4df87aa041395fcef31ba6e3e9b7b26c1"
+}

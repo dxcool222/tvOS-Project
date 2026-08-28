@@ -1,0 +1,9 @@
+/.
+/usr
+/var/jb/usr/lib
+/var/jb/usr/lib/libxxhash.0.8.2.dylib
+/var/jb/usr/share
+/var/jb/usr/share/doc
+/var/jb/usr/share/doc/libxxhash0
+/var/jb/usr/share/doc/libxxhash0/LICENSE
+/var/jb/usr/lib/libxxhash.0.dylib -> libxxhash.0.8.2.dylib

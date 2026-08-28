@@ -1,0 +1,13 @@
+/.
+/etc
+/var/jb/etc/profile.d
+/var/jb/etc/profile.d/cacerts.bootstrap.sh
+/var/jb/etc/ssl
+/var/jb/etc/ssl/certs
+/var/jb/etc/ssl/certs/cacert.pem
+/usr
+/var/jb/usr/lib
+/var/jb/usr/lib/ssl
+/var/jb/etc/ssl/cert.pem -> certs/cacert.pem
+/var/jb/usr/lib/ssl/cacert.pem -> /etc/ssl/certs/cacert.pem
+/var/jb/usr/lib/ssl/certs -> /etc/ssl/certs

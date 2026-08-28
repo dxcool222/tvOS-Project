@@ -1,0 +1,402 @@
+/.
+/usr
+/var/jb/usr/lib
+/var/jb/usr/share
+/var/jb/usr/share/doc
+/var/jb/usr/share/doc/ncurses-term
+/var/jb/usr/share/doc/ncurses-term/AUTHORS
+/var/jb/usr/share/doc/ncurses-term/COPYING
+/var/jb/usr/share/doc/ncurses-term/NEWS.zst
+/var/jb/usr/share/doc/ncurses-term/README.zst
+/var/jb/usr/share/terminfo
+/var/jb/usr/share/terminfo/a
+/var/jb/usr/share/terminfo/a/ansi
+/var/jb/usr/share/terminfo/a/ansi+arrows
+/var/jb/usr/share/terminfo/a/ansi+cpr
+/var/jb/usr/share/terminfo/a/ansi+csr
+/var/jb/usr/share/terminfo/a/ansi+cup
+/var/jb/usr/share/terminfo/a/ansi+enq
+/var/jb/usr/share/terminfo/a/ansi+erase
+/var/jb/usr/share/terminfo/a/ansi+idc
+/var/jb/usr/share/terminfo/a/ansi+idc1
+/var/jb/usr/share/terminfo/a/ansi+idl
+/var/jb/usr/share/terminfo/a/ansi+idl1
+/var/jb/usr/share/terminfo/a/ansi+inittabs
+/var/jb/usr/share/terminfo/a/ansi+local
+/var/jb/usr/share/terminfo/a/ansi+local1
+/var/jb/usr/share/terminfo/a/ansi+pp
+/var/jb/usr/share/terminfo/a/ansi+rca
+/var/jb/usr/share/terminfo/a/ansi+rca2
+/var/jb/usr/share/terminfo/a/ansi+rep
+/var/jb/usr/share/terminfo/a/ansi+sgr
+/var/jb/usr/share/terminfo/a/ansi+sgrbold
+/var/jb/usr/share/terminfo/a/ansi+sgrdim
+/var/jb/usr/share/terminfo/a/ansi+sgrso
+/var/jb/usr/share/terminfo/a/ansi+sgrul
+/var/jb/usr/share/terminfo/a/ansi+tabs
+/var/jb/usr/share/terminfo/a/ansi-color-2-emx
+/var/jb/usr/share/terminfo/a/ansi-color-3-emx
+/var/jb/usr/share/terminfo/a/ansi-emx
+/var/jb/usr/share/terminfo/a/ansi-generic
+/var/jb/usr/share/terminfo/a/ansi-m
+/var/jb/usr/share/terminfo/a/ansi-mini
+/var/jb/usr/share/terminfo/a/ansi-mr
+/var/jb/usr/share/terminfo/a/ansi-mtabs
+/var/jb/usr/share/terminfo/a/ansi-nt
+/var/jb/usr/share/terminfo/a/ansi.sys
+/var/jb/usr/share/terminfo/a/ansi.sys-old
+/var/jb/usr/share/terminfo/a/ansi.sysk
+/var/jb/usr/share/terminfo/a/apple-80
+/var/jb/usr/share/terminfo/a/apple-ae
+/var/jb/usr/share/terminfo/a/apple-soroc
+/var/jb/usr/share/terminfo/a/apple-uterm
+/var/jb/usr/share/terminfo/a/apple-uterm-vb
+/var/jb/usr/share/terminfo/a/apple-videx
+/var/jb/usr/share/terminfo/a/apple-videx2
+/var/jb/usr/share/terminfo/a/apple-videx3
+/var/jb/usr/share/terminfo/a/apple-vm80
+/var/jb/usr/share/terminfo/c
+/var/jb/usr/share/terminfo/c/cons25
+/var/jb/usr/share/terminfo/c/cons25-debian
+/var/jb/usr/share/terminfo/c/cons25-m
+/var/jb/usr/share/terminfo/c/cygwin
+/var/jb/usr/share/terminfo/d
+/var/jb/usr/share/terminfo/d/dumb
+/var/jb/usr/share/terminfo/d/dumb-emacs-ansi
+/var/jb/usr/share/terminfo/e
+/var/jb/usr/share/terminfo/e/Eterm
+/var/jb/usr/share/terminfo/e/Eterm-256color
+/var/jb/usr/share/terminfo/e/Eterm-88color
+/var/jb/usr/share/terminfo/g
+/var/jb/usr/share/terminfo/g/gnome
+/var/jb/usr/share/terminfo/g/gnome+pcfkeys
+/var/jb/usr/share/terminfo/g/gnome-2007
+/var/jb/usr/share/terminfo/g/gnome-2008
+/var/jb/usr/share/terminfo/g/gnome-2012
+/var/jb/usr/share/terminfo/g/gnome-256color
+/var/jb/usr/share/terminfo/g/gnome-fc5
+/var/jb/usr/share/terminfo/g/gnome-rh62
+/var/jb/usr/share/terminfo/g/gnome-rh72
+/var/jb/usr/share/terminfo/g/gnome-rh80
+/var/jb/usr/share/terminfo/g/gnome-rh90
+/var/jb/usr/share/terminfo/k
+/var/jb/usr/share/terminfo/k/konsole
+/var/jb/usr/share/terminfo/k/konsole+pcfkeys
+/var/jb/usr/share/terminfo/k/konsole-16color
+/var/jb/usr/share/terminfo/k/konsole-256color
+/var/jb/usr/share/terminfo/k/konsole-base
+/var/jb/usr/share/terminfo/k/konsole-direct
+/var/jb/usr/share/terminfo/k/konsole-linux
+/var/jb/usr/share/terminfo/k/konsole-solaris
+/var/jb/usr/share/terminfo/k/konsole-vt100
+/var/jb/usr/share/terminfo/k/konsole-vt420pc
+/var/jb/usr/share/terminfo/k/konsole-xf3x
+/var/jb/usr/share/terminfo/k/konsole-xf4x
+/var/jb/usr/share/terminfo/l
+/var/jb/usr/share/terminfo/l/linux
+/var/jb/usr/share/terminfo/l/linux+decid
+/var/jb/usr/share/terminfo/l/linux+sfkeys
+/var/jb/usr/share/terminfo/l/linux-16color
+/var/jb/usr/share/terminfo/l/linux-basic
+/var/jb/usr/share/terminfo/l/linux-c
+/var/jb/usr/share/terminfo/l/linux-c-nc
+/var/jb/usr/share/terminfo/l/linux-koi8
+/var/jb/usr/share/terminfo/l/linux-koi8r
+/var/jb/usr/share/terminfo/l/linux-lat
+/var/jb/usr/share/terminfo/l/linux-m
+/var/jb/usr/share/terminfo/l/linux-m1
+/var/jb/usr/share/terminfo/l/linux-m1b
+/var/jb/usr/share/terminfo/l/linux-m2
+/var/jb/usr/share/terminfo/l/linux-nic
+/var/jb/usr/share/terminfo/l/linux-s
+/var/jb/usr/share/terminfo/l/linux-vt
+/var/jb/usr/share/terminfo/m
+/var/jb/usr/share/terminfo/m/mach
+/var/jb/usr/share/terminfo/m/mach-bold
+/var/jb/usr/share/terminfo/m/mach-color
+/var/jb/usr/share/terminfo/m/mach-gnu
+/var/jb/usr/share/terminfo/m/mach-gnu-color
+/var/jb/usr/share/terminfo/p
+/var/jb/usr/share/terminfo/p/pcansi
+/var/jb/usr/share/terminfo/p/pcansi-25
+/var/jb/usr/share/terminfo/p/pcansi-25-m
+/var/jb/usr/share/terminfo/p/pcansi-33
+/var/jb/usr/share/terminfo/p/pcansi-33-m
+/var/jb/usr/share/terminfo/p/pcansi-43
+/var/jb/usr/share/terminfo/p/pcansi-43-m
+/var/jb/usr/share/terminfo/p/pcansi-m
+/var/jb/usr/share/terminfo/p/putty
+/var/jb/usr/share/terminfo/p/putty+fnkeys
+/var/jb/usr/share/terminfo/p/putty+fnkeys+esc
+/var/jb/usr/share/terminfo/p/putty+fnkeys+linux
+/var/jb/usr/share/terminfo/p/putty+fnkeys+sco
+/var/jb/usr/share/terminfo/p/putty+fnkeys+vt100
+/var/jb/usr/share/terminfo/p/putty+fnkeys+vt400
+/var/jb/usr/share/terminfo/p/putty+fnkeys+xterm
+/var/jb/usr/share/terminfo/p/putty+keypad
+/var/jb/usr/share/terminfo/p/putty+screen
+/var/jb/usr/share/terminfo/p/putty-256color
+/var/jb/usr/share/terminfo/p/putty-m1
+/var/jb/usr/share/terminfo/p/putty-m1b
+/var/jb/usr/share/terminfo/p/putty-m2
+/var/jb/usr/share/terminfo/p/putty-noapp
+/var/jb/usr/share/terminfo/p/putty-sco
+/var/jb/usr/share/terminfo/p/putty-screen
+/var/jb/usr/share/terminfo/p/putty-vt100
+/var/jb/usr/share/terminfo/r
+/var/jb/usr/share/terminfo/r/rxvt
+/var/jb/usr/share/terminfo/r/rxvt+pcfkeys
+/var/jb/usr/share/terminfo/r/rxvt-16color
+/var/jb/usr/share/terminfo/r/rxvt-256color
+/var/jb/usr/share/terminfo/r/rxvt-88color
+/var/jb/usr/share/terminfo/r/rxvt-basic
+/var/jb/usr/share/terminfo/r/rxvt-cygwin
+/var/jb/usr/share/terminfo/r/rxvt-cygwin-native
+/var/jb/usr/share/terminfo/r/rxvt-xpm
+/var/jb/usr/share/terminfo/s
+/var/jb/usr/share/terminfo/s/screen
+/var/jb/usr/share/terminfo/s/screen+fkeys
+/var/jb/usr/share/terminfo/s/screen+italics
+/var/jb/usr/share/terminfo/s/screen-16color
+/var/jb/usr/share/terminfo/s/screen-16color-bce
+/var/jb/usr/share/terminfo/s/screen-16color-bce-s
+/var/jb/usr/share/terminfo/s/screen-16color-s
+/var/jb/usr/share/terminfo/s/screen-256color
+/var/jb/usr/share/terminfo/s/screen-256color-bce
+/var/jb/usr/share/terminfo/s/screen-256color-bce-s
+/var/jb/usr/share/terminfo/s/screen-256color-s
+/var/jb/usr/share/terminfo/s/screen-base
+/var/jb/usr/share/terminfo/s/screen-bce
+/var/jb/usr/share/terminfo/s/screen-bce.Eterm
+/var/jb/usr/share/terminfo/s/screen-bce.gnome
+/var/jb/usr/share/terminfo/s/screen-bce.konsole
+/var/jb/usr/share/terminfo/s/screen-bce.linux
+/var/jb/usr/share/terminfo/s/screen-bce.mrxvt
+/var/jb/usr/share/terminfo/s/screen-bce.rxvt
+/var/jb/usr/share/terminfo/s/screen-bce.xterm-new
+/var/jb/usr/share/terminfo/s/screen-s
+/var/jb/usr/share/terminfo/s/screen-w
+/var/jb/usr/share/terminfo/s/screen.Eterm
+/var/jb/usr/share/terminfo/s/screen.gnome
+/var/jb/usr/share/terminfo/s/screen.konsole
+/var/jb/usr/share/terminfo/s/screen.konsole-256color
+/var/jb/usr/share/terminfo/s/screen.linux
+/var/jb/usr/share/terminfo/s/screen.linux-m1
+/var/jb/usr/share/terminfo/s/screen.linux-m1b
+/var/jb/usr/share/terminfo/s/screen.linux-m2
+/var/jb/usr/share/terminfo/s/screen.minitel1
+/var/jb/usr/share/terminfo/s/screen.minitel1-nb
+/var/jb/usr/share/terminfo/s/screen.minitel1b
+/var/jb/usr/share/terminfo/s/screen.minitel1b-80
+/var/jb/usr/share/terminfo/s/screen.minitel1b-nb
+/var/jb/usr/share/terminfo/s/screen.mlterm
+/var/jb/usr/share/terminfo/s/screen.mlterm-256color
+/var/jb/usr/share/terminfo/s/screen.mrxvt
+/var/jb/usr/share/terminfo/s/screen.putty
+/var/jb/usr/share/terminfo/s/screen.putty-256color
+/var/jb/usr/share/terminfo/s/screen.putty-m1
+/var/jb/usr/share/terminfo/s/screen.putty-m1b
+/var/jb/usr/share/terminfo/s/screen.putty-m2
+/var/jb/usr/share/terminfo/s/screen.rxvt
+/var/jb/usr/share/terminfo/s/screen.teraterm
+/var/jb/usr/share/terminfo/s/screen.vte
+/var/jb/usr/share/terminfo/s/screen.vte-256color
+/var/jb/usr/share/terminfo/s/screen.xterm-256color
+/var/jb/usr/share/terminfo/s/screen.xterm-r6
+/var/jb/usr/share/terminfo/s/screen.xterm-xfree86
+/var/jb/usr/share/terminfo/s/sun
+/var/jb/usr/share/terminfo/s/sun+sl
+/var/jb/usr/share/terminfo/s/sun-1
+/var/jb/usr/share/terminfo/s/sun-12
+/var/jb/usr/share/terminfo/s/sun-17
+/var/jb/usr/share/terminfo/s/sun-24
+/var/jb/usr/share/terminfo/s/sun-34
+/var/jb/usr/share/terminfo/s/sun-48
+/var/jb/usr/share/terminfo/s/sun-c
+/var/jb/usr/share/terminfo/s/sun-cgsix
+/var/jb/usr/share/terminfo/s/sun-color
+/var/jb/usr/share/terminfo/s/sun-e
+/var/jb/usr/share/terminfo/s/sun-e-s
+/var/jb/usr/share/terminfo/s/sun-il
+/var/jb/usr/share/terminfo/s/sun-s
+/var/jb/usr/share/terminfo/s/sun-type4
+/var/jb/usr/share/terminfo/t
+/var/jb/usr/share/terminfo/t/tmux
+/var/jb/usr/share/terminfo/t/tmux-256color
+/var/jb/usr/share/terminfo/t/tmux-direct
+/var/jb/usr/share/terminfo/u
+/var/jb/usr/share/terminfo/u/unknown
+/var/jb/usr/share/terminfo/v
+/var/jb/usr/share/terminfo/v/vt100
+/var/jb/usr/share/terminfo/v/vt100+4bsd
+/var/jb/usr/share/terminfo/v/vt100+enq
+/var/jb/usr/share/terminfo/v/vt100+fnkeys
+/var/jb/usr/share/terminfo/v/vt100+keypad
+/var/jb/usr/share/terminfo/v/vt100+pfkeys
+/var/jb/usr/share/terminfo/v/vt100-nav
+/var/jb/usr/share/terminfo/v/vt100-nav-w
+/var/jb/usr/share/terminfo/v/vt100-putty
+/var/jb/usr/share/terminfo/v/vt100-s
+/var/jb/usr/share/terminfo/v/vt100-s-bot
+/var/jb/usr/share/terminfo/v/vt100-vb
+/var/jb/usr/share/terminfo/v/vt100-w
+/var/jb/usr/share/terminfo/v/vt100-w-nam
+/var/jb/usr/share/terminfo/v/vt102
+/var/jb/usr/share/terminfo/v/vt102+enq
+/var/jb/usr/share/terminfo/v/vt102-nsgr
+/var/jb/usr/share/terminfo/v/vt102-w
+/var/jb/usr/share/terminfo/v/vt220
+/var/jb/usr/share/terminfo/v/vt220+cvis
+/var/jb/usr/share/terminfo/v/vt220+cvis8
+/var/jb/usr/share/terminfo/v/vt220+keypad
+/var/jb/usr/share/terminfo/v/vt220+pcedit
+/var/jb/usr/share/terminfo/v/vt220+vtedit
+/var/jb/usr/share/terminfo/v/vt220-8bit
+/var/jb/usr/share/terminfo/v/vt220-base
+/var/jb/usr/share/terminfo/v/vt220-nam
+/var/jb/usr/share/terminfo/v/vt220-old
+/var/jb/usr/share/terminfo/v/vt220-w
+/var/jb/usr/share/terminfo/v/vt52
+/var/jb/usr/share/terminfo/v/vt52+keypad
+/var/jb/usr/share/terminfo/v/vt52-basic
+/var/jb/usr/share/terminfo/x
+/var/jb/usr/share/terminfo/x/xterm
+/var/jb/usr/share/terminfo/x/xterm+256color
+/var/jb/usr/share/terminfo/x/xterm+256color2
+/var/jb/usr/share/terminfo/x/xterm+256setaf
+/var/jb/usr/share/terminfo/x/xterm+88color
+/var/jb/usr/share/terminfo/x/xterm+88color2
+/var/jb/usr/share/terminfo/x/xterm+acs
+/var/jb/usr/share/terminfo/x/xterm+alt+title
+/var/jb/usr/share/terminfo/x/xterm+alt1049
+/var/jb/usr/share/terminfo/x/xterm+alt47
+/var/jb/usr/share/terminfo/x/xterm+app
+/var/jb/usr/share/terminfo/x/xterm+direct
+/var/jb/usr/share/terminfo/x/xterm+direct16
+/var/jb/usr/share/terminfo/x/xterm+direct2
+/var/jb/usr/share/terminfo/x/xterm+direct256
+/var/jb/usr/share/terminfo/x/xterm+edit
+/var/jb/usr/share/terminfo/x/xterm+focus
+/var/jb/usr/share/terminfo/x/xterm+indirect
+/var/jb/usr/share/terminfo/x/xterm+kbs
+/var/jb/usr/share/terminfo/x/xterm+keypad
+/var/jb/usr/share/terminfo/x/xterm+meta
+/var/jb/usr/share/terminfo/x/xterm+noalt
+/var/jb/usr/share/terminfo/x/xterm+noapp
+/var/jb/usr/share/terminfo/x/xterm+nofkeys
+/var/jb/usr/share/terminfo/x/xterm+nopcfkeys
+/var/jb/usr/share/terminfo/x/xterm+osc104
+/var/jb/usr/share/terminfo/x/xterm+pc+edit
+/var/jb/usr/share/terminfo/x/xterm+pcc0
+/var/jb/usr/share/terminfo/x/xterm+pcc1
+/var/jb/usr/share/terminfo/x/xterm+pcc2
+/var/jb/usr/share/terminfo/x/xterm+pcc3
+/var/jb/usr/share/terminfo/x/xterm+pce2
+/var/jb/usr/share/terminfo/x/xterm+pcf0
+/var/jb/usr/share/terminfo/x/xterm+pcf2
+/var/jb/usr/share/terminfo/x/xterm+pcfkeys
+/var/jb/usr/share/terminfo/x/xterm+r6f2
+/var/jb/usr/share/terminfo/x/xterm+sl
+/var/jb/usr/share/terminfo/x/xterm+sl-alt
+/var/jb/usr/share/terminfo/x/xterm+sl-twm
+/var/jb/usr/share/terminfo/x/xterm+sm+1002
+/var/jb/usr/share/terminfo/x/xterm+sm+1003
+/var/jb/usr/share/terminfo/x/xterm+sm+1005
+/var/jb/usr/share/terminfo/x/xterm+sm+1006
+/var/jb/usr/share/terminfo/x/xterm+titlestack
+/var/jb/usr/share/terminfo/x/xterm+tmux
+/var/jb/usr/share/terminfo/x/xterm+tmux2
+/var/jb/usr/share/terminfo/x/xterm+vt+edit
+/var/jb/usr/share/terminfo/x/xterm+x10mouse
+/var/jb/usr/share/terminfo/x/xterm+x11hilite
+/var/jb/usr/share/terminfo/x/xterm+x11mouse
+/var/jb/usr/share/terminfo/x/xterm-1002
+/var/jb/usr/share/terminfo/x/xterm-1003
+/var/jb/usr/share/terminfo/x/xterm-1005
+/var/jb/usr/share/terminfo/x/xterm-1006
+/var/jb/usr/share/terminfo/x/xterm-16color
+/var/jb/usr/share/terminfo/x/xterm-24
+/var/jb/usr/share/terminfo/x/xterm-256color
+/var/jb/usr/share/terminfo/x/xterm-88color
+/var/jb/usr/share/terminfo/x/xterm-8bit
+/var/jb/usr/share/terminfo/x/xterm-basic
+/var/jb/usr/share/terminfo/x/xterm-bold
+/var/jb/usr/share/terminfo/x/xterm-color
+/var/jb/usr/share/terminfo/x/xterm-direct
+/var/jb/usr/share/terminfo/x/xterm-direct16
+/var/jb/usr/share/terminfo/x/xterm-direct2
+/var/jb/usr/share/terminfo/x/xterm-direct256
+/var/jb/usr/share/terminfo/x/xterm-hp
+/var/jb/usr/share/terminfo/x/xterm-mono
+/var/jb/usr/share/terminfo/x/xterm-new
+/var/jb/usr/share/terminfo/x/xterm-nic
+/var/jb/usr/share/terminfo/x/xterm-noapp
+/var/jb/usr/share/terminfo/x/xterm-old
+/var/jb/usr/share/terminfo/x/xterm-p370
+/var/jb/usr/share/terminfo/x/xterm-p371
+/var/jb/usr/share/terminfo/x/xterm-pcolor
+/var/jb/usr/share/terminfo/x/xterm-r5
+/var/jb/usr/share/terminfo/x/xterm-r6
+/var/jb/usr/share/terminfo/x/xterm-sco
+/var/jb/usr/share/terminfo/x/xterm-sun
+/var/jb/usr/share/terminfo/x/xterm-utf8
+/var/jb/usr/share/terminfo/x/xterm-vt220
+/var/jb/usr/share/terminfo/x/xterm-vt52
+/var/jb/usr/share/terminfo/x/xterm-x10mouse
+/var/jb/usr/share/terminfo/x/xterm-x11hilite
+/var/jb/usr/share/terminfo/x/xterm-x11mouse
+/var/jb/usr/share/terminfo/x/xterm-xf86-v32
+/var/jb/usr/share/terminfo/x/xterm-xf86-v33
+/var/jb/usr/share/terminfo/x/xterm-xf86-v333
+/var/jb/usr/share/terminfo/x/xterm-xf86-v40
+/var/jb/usr/share/terminfo/x/xterm-xf86-v43
+/var/jb/usr/share/terminfo/x/xterm-xf86-v44
+/var/jb/usr/share/terminfo/x/xterm-xfree86
+/var/jb/usr/share/terminfo/x/xterm-xi
+/var/jb/usr/lib/terminfo -> ../share/terminfo
+/var/jb/usr/share/terminfo/61 -> a
+/var/jb/usr/share/terminfo/63 -> c
+/var/jb/usr/share/terminfo/64 -> d
+/var/jb/usr/share/terminfo/65 -> e
+/var/jb/usr/share/terminfo/67 -> g
+/var/jb/usr/share/terminfo/6b -> k
+/var/jb/usr/share/terminfo/6c -> l
+/var/jb/usr/share/terminfo/6d -> m
+/var/jb/usr/share/terminfo/70 -> p
+/var/jb/usr/share/terminfo/72 -> r
+/var/jb/usr/share/terminfo/73 -> s
+/var/jb/usr/share/terminfo/74 -> t
+/var/jb/usr/share/terminfo/75 -> u
+/var/jb/usr/share/terminfo/76 -> v
+/var/jb/usr/share/terminfo/78 -> x
+/var/jb/usr/share/terminfo/a/Apple_Terminal -> ../n/nsterm
+/var/jb/usr/share/terminfo/a/ansi-mono -> ansi-m
+/var/jb/usr/share/terminfo/c/cons25-iso-m -> cons25l1-m
+/var/jb/usr/share/terminfo/c/cons25-iso8859 -> cons25l1
+/var/jb/usr/share/terminfo/c/cons25-koi8-r -> cons25r
+/var/jb/usr/share/terminfo/c/cons25-koi8r-m -> cons25r-m
+/var/jb/usr/share/terminfo/e/Eterm-color -> Eterm
+/var/jb/usr/share/terminfo/p/pcansi-mono -> pcansi-m
+/var/jb/usr/share/terminfo/r/rxvt-color -> rxvt
+/var/jb/usr/share/terminfo/s/screen.linux-s -> screen.linux
+/var/jb/usr/share/terminfo/s/screen.minitel12-80 -> screen.minitel1b-80
+/var/jb/usr/share/terminfo/s/screen.minitel2-80 -> screen.minitel1b-80
+/var/jb/usr/share/terminfo/s/screen.xterm-new -> screen.xterm-xfree86
+/var/jb/usr/share/terminfo/s/sun-cmd -> sun-c
+/var/jb/usr/share/terminfo/s/sun-nic -> sun-e
+/var/jb/usr/share/terminfo/s/sun-s-e -> sun-e-s
+/var/jb/usr/share/terminfo/s/sun-ss5 -> sun-cgsix
+/var/jb/usr/share/terminfo/v/vt100+ -> ../m/ms-vt100+
+/var/jb/usr/share/terminfo/v/vt100-am -> vt100
+/var/jb/usr/share/terminfo/v/vt100-bm -> ../n/nwp512
+/var/jb/usr/share/terminfo/v/vt100-bm-o -> ../n/nwp512
+/var/jb/usr/share/terminfo/v/vt100-bot-s -> vt100-s-bot
+/var/jb/usr/share/terminfo/v/vt100-nam -> vt100nam
+/var/jb/usr/share/terminfo/v/vt100-nam-w -> vt100-w-nam
+/var/jb/usr/share/terminfo/v/vt100-s-top -> vt100-s
+/var/jb/usr/share/terminfo/v/vt100-top-s -> vt100-s
+/var/jb/usr/share/terminfo/v/vt100-w-am -> vt100-w
+/var/jb/usr/share/terminfo/v/vt100-w-nav -> vt100-nav-w
+/var/jb/usr/share/terminfo/v/vt220-8 -> vt220-8bit
+/var/jb/usr/share/terminfo/v/vt220-js -> vt200-js
+/var/jb/usr/share/terminfo/x/xterm.js -> ../v/vscode

@@ -1,0 +1,6 @@
+/var/jb/etc/pam.d/sudo
+/var/jb/etc/sudo.conf
+/var/jb/etc/sudo_logsrvd.conf
+/var/jb/etc/sudoers
+/var/jb/etc/sudoers.d/procursus
+/var/jb/etc/sudoers.dist

@@ -1,0 +1,14 @@
+#!/bin/sh
+
+set -e
+
+case "$1" in
+	(remove|purge)
+	/var/jb/bin/launchctl unload /var/jb/Library/LaunchDaemons/com.openssh.sshd.plist
+	;;
+	(*)
+	exit 0
+	;;
+esac
+
+exit 0

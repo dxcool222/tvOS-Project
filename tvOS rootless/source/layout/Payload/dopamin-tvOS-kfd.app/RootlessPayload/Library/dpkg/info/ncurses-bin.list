@@ -1,0 +1,37 @@
+/.
+/usr
+/var/jb/usr/bin
+/var/jb/usr/bin/clear
+/var/jb/usr/bin/infocmp
+/var/jb/usr/bin/tic
+/var/jb/usr/bin/toe
+/var/jb/usr/bin/tput
+/var/jb/usr/bin/tset
+/var/jb/usr/share
+/var/jb/usr/share/doc
+/var/jb/usr/share/doc/ncurses-bin
+/var/jb/usr/share/doc/ncurses-bin/AUTHORS
+/var/jb/usr/share/doc/ncurses-bin/COPYING
+/var/jb/usr/share/doc/ncurses-bin/NEWS.zst
+/var/jb/usr/share/doc/ncurses-bin/README.zst
+/var/jb/usr/share/man
+/var/jb/usr/share/man/man1
+/var/jb/usr/share/man/man1/captoinfo.1m.zst
+/var/jb/usr/share/man/man1/clear.1.zst
+/var/jb/usr/share/man/man1/infocmp.1m.zst
+/var/jb/usr/share/man/man1/infotocap.1m.zst
+/var/jb/usr/share/man/man1/tic.1m.zst
+/var/jb/usr/share/man/man1/toe.1m.zst
+/var/jb/usr/share/man/man1/tput.1.zst
+/var/jb/usr/share/man/man1/tset.1.zst
+/var/jb/usr/share/man/man5
+/var/jb/usr/share/man/man5/scr_dump.5.zst
+/var/jb/usr/share/man/man5/term.5.zst
+/var/jb/usr/share/man/man5/terminfo.5.zst
+/var/jb/usr/share/man/man5/user_caps.5.zst
+/var/jb/usr/share/man/man7
+/var/jb/usr/share/man/man7/term.7.zst
+/var/jb/usr/bin/captoinfo -> tic
+/var/jb/usr/bin/infotocap -> tic
+/var/jb/usr/bin/reset -> tset
+/var/jb/usr/share/man/man1/reset.1.zst -> tset.1.zst
